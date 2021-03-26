@@ -21,19 +21,16 @@ public class PlayerControl : CharacterMovement
     // Update is called once per frame
     void Update()
     {
-        //if(Input.GetMouseButtonDown(0))
-        //{
-        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //    RaycastHit hit;
-        //    if(Physics.Raycast(ray,out hit, 1000.0f, PickingMask))
-        //    {
-        //        base.MouseMovePosition(hit.point);
-        //    }
-        //}
-
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
         base.KeyboardMovePosition(horizontal, vertical);
+
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            base.JumpAnimationPlay();
+            base.JumpPosition();
+        }
     }
+
 }
