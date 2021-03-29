@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
+    public AnimationActionPlay _animationActionPlay;
 
     Animator anim = null;
     public Animator animator
@@ -58,13 +59,11 @@ public class CharacterMovement : MonoBehaviour
 
     public void JumpAnimationPlay()
     {
-        animator.SetTrigger("Jump");     
+        _animationActionPlay.Jump += () => rigidbody.velocity = Vector3.up * JumpPower;
+        animator.SetTrigger("Jump");
     }
 
-    public void JumpPosition()
-    {
-        rigidbody.AddForce(Vector3.up * JumpPower);
-    }
+
 
 
     public void KeyboardMovePosition(float horizontal, float vertical)
