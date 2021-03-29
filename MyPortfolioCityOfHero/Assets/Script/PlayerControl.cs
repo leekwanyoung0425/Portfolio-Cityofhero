@@ -11,6 +11,8 @@ public class PlayerControl : CharacterMovement
     float horizontal;
     float vertical;
     private bool isGround = true;
+    TargetSelect _targetSelect;
+
     // Start is called before the first frame update
     private void Awake()
     {       
@@ -18,7 +20,7 @@ public class PlayerControl : CharacterMovement
     void Start()
     {
         _collider = GetComponent<BoxCollider>();
-        StartCoroutine("IsGroundCheck");
+        _targetSelect = GetComponent<TargetSelect>();
     }
 
     // Update is called once per frame
@@ -26,19 +28,9 @@ public class PlayerControl : CharacterMovement
     {
         CharacterMove();
         CharacterJump();
-
+        Targeting();
     }
 
-
-    IEnumerator IsGroundCheck()
-    {
-        while(true)
-        {
-            isGround = Physics.Raycast(transform.position, Vector3.down, _collider.bounds.extents.y+0.1f);
-
-            yield return null;
-        }       
-    }
 
     void CharacterMove()
     {
@@ -54,8 +46,23 @@ public class PlayerControl : CharacterMovement
         {
             if (isGround)
             {
+                isGround = false;
                 base.JumpAnimationPlay();
             }
+        }
+    }
+
+    void OnCollisionEnter(Collision other)
+    {
+        isGround = true;
+        Debug.Log(other.gameObject.name);
+    }
+
+    void Targeting()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            _targetSelect.Targeting();
         }
     }
 }
