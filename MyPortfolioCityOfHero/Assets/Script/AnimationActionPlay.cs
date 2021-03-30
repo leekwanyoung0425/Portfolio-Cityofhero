@@ -12,6 +12,6 @@ public class AnimationActionPlay : MonoBehaviour
     public void CharacterJumpAction()
     {
         Jump?.Invoke();
-        Jump -= Jump;
+        Jump = null;
     }
 }

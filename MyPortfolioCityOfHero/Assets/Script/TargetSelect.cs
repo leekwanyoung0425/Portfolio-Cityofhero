@@ -15,21 +15,23 @@ public class TargetSelect : MonoBehaviour
         halfsize.y = canvas.pixelRect.height / 2.0f;
     }
 
-    public void Targeting()
+    void Update()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        Vector3 monstePosition;
-        Vector3 TargetUIPosition;
-
-        if (Physics.Raycast(ray, out hit, 1000.0f, Monster))
+        if (Input.GetMouseButtonDown(0))
         {
-            monstePosition = hit.transform.position;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            Vector3 monstePosition;
+            Vector3 TargetUIPosition;
 
-            TargetUIPosition = Camera.main.WorldToScreenPoint(monstePosition);
+            if (Physics.Raycast(ray, out hit, 1000.0f, Monster))
+            {
+                monstePosition = hit.transform.position;
 
-            Debug.Log(TargetUIPosition);
+                TargetUIPosition = Camera.main.WorldToScreenPoint(monstePosition);
 
+                Debug.Log(TargetUIPosition);
+            }
         }
     }
 }

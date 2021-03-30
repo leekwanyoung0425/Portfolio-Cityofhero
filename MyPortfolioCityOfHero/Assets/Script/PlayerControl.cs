@@ -28,7 +28,6 @@ public class PlayerControl : CharacterMovement
     {
         CharacterMove();
         CharacterJump();
-        Targeting();
     }
 
 
@@ -56,13 +55,5 @@ public class PlayerControl : CharacterMovement
     {
         isGround = true;
         Debug.Log(other.gameObject.name);
-    }
-
-    void Targeting()
-    {
-        if(Input.GetMouseButtonDown(0))
-        {
-            _targetSelect.Targeting();
-        }
     }
 }
