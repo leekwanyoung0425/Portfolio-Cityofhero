@@ -12,6 +12,7 @@ public class TargetSelect : MonoBehaviour
     Vector2 halfsize = Vector2.zero;
     Coroutine isTargetingFollow = null;
 
+    
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
@@ -30,7 +31,6 @@ public class TargetSelect : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 1000.0f, Monster))
             {
-                Debug.Log(Camera.main.WorldToScreenPoint(hit.transform.position));
 
                 foreach (Image image in prefabtargetImage)
                 {               
@@ -47,27 +47,32 @@ public class TargetSelect : MonoBehaviour
 
     IEnumerator TargetingFollow(Transform target, List<Image> images)
     {
-        Vector3 monstePosition;
-        Vector3 targetUIPosition;
+        Transform tr = target.Find("Head"); //HeadTop_End
+        Debug.Log(tr);
+        Vector3 headPos = tr.position;
+
+        Vector3 min_headPos;
+        Vector3 max_headPos;
+        Vector3 min_rightHandPos;
+        Vector3 max_rightHandPos;
+        Vector3 min_leftHandPos;
+        Vector3 max_leftHandPos;
+        Vector3 max_footPos;
 
         while (target != null)
         {
-            monstePosition = target.transform.position;
+            max_headPos = Camera.main.WorldToScreenPoint(headPos);
+            max_headPos.x -= halfsize.x;
+            max_headPos.y -= halfsize.y;
 
-            targetUIPosition = Camera.main.WorldToScreenPoint(monstePosition);
-
-            targetUIPosition.x -= halfsize.x;
-            targetUIPosition.y -= halfsize.y;
-
-
-            images[0].transform.localPosition = targetUIPosition;
-            images[0].transform.localPosition += new Vector3(-70.0f, 200.0f, 0);
-            images[1].transform.localPosition = targetUIPosition;
-            images[1].transform.localPosition += new Vector3(70.0f, 200.0f, 0);
-            images[2].transform.localPosition = targetUIPosition;
-            images[2].transform.localPosition += new Vector3(70.0f, -50.0f, 0);
-            images[3].transform.localPosition = targetUIPosition;
-            images[3].transform.localPosition += new Vector3(-70.0f, -50.0f, 0);
+            images[0].transform.localPosition = max_headPos;
+            images[0].transform.localPosition += new Vector3(-50.0f, 0, 0);
+            images[1].transform.localPosition = max_headPos;
+            images[1].transform.localPosition += new Vector3(50.0f, 0, 0);
+            //images[2].transform.localPosition = targetUIPosition;
+            //images[2].transform.localPosition += new Vector3(70.0f, -50.0f, 0);
+            //images[3].transform.localPosition = targetUIPosition;
+            //images[3].transform.localPosition += new Vector3(-70.0f, -50.0f, 0);
 
             yield return null;
         }
