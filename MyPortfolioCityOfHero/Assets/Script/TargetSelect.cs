@@ -47,10 +47,6 @@ public class TargetSelect : MonoBehaviour
 
     IEnumerator TargetingFollow(Transform target, List<Image> images)
     {
-        Transform tr = target.Find("Head"); //HeadTop_End
-        Debug.Log(tr);
-        Vector3 headPos = tr.position;
-
         Vector3 min_headPos;
         Vector3 max_headPos;
         Vector3 min_rightHandPos;
@@ -59,16 +55,27 @@ public class TargetSelect : MonoBehaviour
         Vector3 max_leftHandPos;
         Vector3 max_footPos;
 
+        Vector3 max_staticleftUP;
+        Vector3 max_staticrightUP;
+
+        Vector3 test;
+
+        max_headPos = target.GetComponentInChildren<GetHeadPosition>().pos;
+
+        
         while (target != null)
         {
-            max_headPos = Camera.main.WorldToScreenPoint(headPos);
-            max_headPos.x -= halfsize.x;
-            max_headPos.y -= halfsize.y;
+            test = Camera.main.WorldToScreenPoint(max_headPos);
+            Debug.Log(test);
+            test.x -= halfsize.x;
+            test.y -= halfsize.y;
 
-            images[0].transform.localPosition = max_headPos;
+            images[0].transform.localPosition = test;
             images[0].transform.localPosition += new Vector3(-50.0f, 0, 0);
-            images[1].transform.localPosition = max_headPos;
+            images[1].transform.localPosition = test;
             images[1].transform.localPosition += new Vector3(50.0f, 0, 0);
+
+
             //images[2].transform.localPosition = targetUIPosition;
             //images[2].transform.localPosition += new Vector3(70.0f, -50.0f, 0);
             //images[3].transform.localPosition = targetUIPosition;
