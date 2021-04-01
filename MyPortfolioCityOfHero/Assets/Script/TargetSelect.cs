@@ -18,7 +18,6 @@ public class TargetSelect : MonoBehaviour
         canvas = FindObjectOfType<Canvas>();
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
-        Debug.Log(halfsize);
     }
 
     void Update()
@@ -47,28 +46,56 @@ public class TargetSelect : MonoBehaviour
 
     IEnumerator TargetingFollow(Transform target, List<Image> images)
     {
-        Vector3 min_headPos;
-        Vector3 max_headPos;
-        Vector3 min_rightHandPos;
-        Vector3 max_rightHandPos;
-        Vector3 min_leftHandPos;
-        Vector3 max_leftHandPos;
-        Vector3 max_footPos;
+        List<Vector3> screenPos = new List<Vector3>();
+        Vector3 headPos;
+        Vector3 leftHandPos;
+        Vector3 rightHandPos;
+        Vector3 leftFootPos;
+        Vector3 rightFootPos;
 
-        Vector3 max_staticleftUP;
-        Vector3 max_staticrightUP;
+        Vector3 headScreenPos;
+        Vector3 leftHandScreenPos;
+        Vector3 rightHandScreenPos;
+        Vector3 leftFootScreenPos;
+        Vector3 rightFootScreenPos;
 
-        Vector3 test;
 
-        max_headPos = target.GetComponentInChildren<GetHeadPosition>().pos;
+        headPos = target.GetComponentInChildren<GetHeadPosition>().pos;
+        leftHandPos = target.GetComponentInChildren<GetLeftHandPosition>().pos;
+        rightHandPos = target.GetComponentInChildren<GetRightHandPosition>().pos;
+        leftFootPos = target.GetComponentInChildren<GetLeftFootPosition>().pos;
+        rightFootPos = target.GetComponentInChildren<GetRightFootPosition>().pos;
 
-        
+
         while (target != null)
         {
-            test = Camera.main.WorldToScreenPoint(max_headPos);
-            Debug.Log(test);
-            test.x -= halfsize.x;
-            test.y -= halfsize.y;
+
+            headScreenPos = Camera.main.WorldToScreenPoint(headPos);
+            leftHandScreenPos = Camera.main.WorldToScreenPoint(leftHandPos);
+            rightHandScreenPos = Camera.main.WorldToScreenPoint(rightHandPos);
+            leftFootScreenPos = Camera.main.WorldToScreenPoint(leftFootPos);
+            rightFootScreenPos = Camera.main.WorldToScreenPoint(rightFootPos);
+
+
+            headScreenPos.x -= halfsize.x;
+            headScreenPos.y -= halfsize.y;
+            leftHandScreenPos.x -= halfsize.x;
+            leftHandScreenPos.y -= halfsize.x;
+            rightHandScreenPos.x -= halfsize.x;
+            rightHandScreenPos.y -= halfsize.x;
+            leftFootScreenPos.x -= halfsize.x;
+            leftFootScreenPos.y -= halfsize.x;
+            rightFootScreenPos.x -= halfsize.x;
+            rightFootScreenPos.y -= halfsize.x;
+
+
+            screenPos.Add(headScreenPos);
+            screenPos.Add(leftHandScreenPos);
+            screenPos.Add(rightHandScreenPos);
+            screenPos.Add(leftFootScreenPos);
+            screenPos.Add(rightFootScreenPos);
+
+
 
             images[0].transform.localPosition = test;
             images[0].transform.localPosition += new Vector3(-50.0f, 0, 0);
@@ -85,5 +112,23 @@ public class TargetSelect : MonoBehaviour
         }
     }
 
+    List<Vector3> GetMinMaxScreenPosition(List<Vector3> pos)
+    {
+        List<Vector3> minMaxPos = new List<Vector3>();
+        float minX = 0.0f;
+        float maxX = 0.0f;
+        float minY = 0.0f;
+        float maxY = 0.0f;
 
+
+        for (int i=0; i< pos.Count; i++)
+        {
+            if(pos[i].x <= pos[i+1].x) minX = pos[i].x;
+            if(pos[i].y <= pos[i+1].y) minY = pos[i].x;
+        }
+
+
+
+        return 
+    }
 }
