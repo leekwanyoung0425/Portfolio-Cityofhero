@@ -16,8 +16,12 @@ public class TargetSelect : MonoBehaviour
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
+        Debug.Log(canvas.pixelRect.width);
+        Debug.Log(canvas.pixelRect.height);
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
+        Debug.Log(halfsize.x);
+        Debug.Log(halfsize.y);
     }
 
     void Update()
@@ -46,7 +50,10 @@ public class TargetSelect : MonoBehaviour
 
     IEnumerator TargetingFollow(Transform target, List<Image> images)
     {
-        List<Vector3> screenPos = new List<Vector3>();
+        List<float> screenPosX = new List<float>();
+        List<float> screenPosY = new List<float>();
+        List<float> getMinMaxPos = new List<float>();
+
         Vector3 headPos;
         Vector3 leftHandPos;
         Vector3 rightHandPos;
@@ -59,12 +66,23 @@ public class TargetSelect : MonoBehaviour
         Vector3 leftFootScreenPos;
         Vector3 rightFootScreenPos;
 
+        float getMinX;
+        float getMinY;
+        float getMaxX;
+        float getMaxY;
+
 
         headPos = target.GetComponentInChildren<GetHeadPosition>().pos;
         leftHandPos = target.GetComponentInChildren<GetLeftHandPosition>().pos;
         rightHandPos = target.GetComponentInChildren<GetRightHandPosition>().pos;
         leftFootPos = target.GetComponentInChildren<GetLeftFootPosition>().pos;
         rightFootPos = target.GetComponentInChildren<GetRightFootPosition>().pos;
+
+        Debug.Log(headPos);
+        Debug.Log(leftHandPos);
+        Debug.Log(rightHandPos);
+        Debug.Log(leftFootPos);
+        Debug.Log(rightFootPos);
 
 
         while (target != null)
@@ -76,59 +94,79 @@ public class TargetSelect : MonoBehaviour
             leftFootScreenPos = Camera.main.WorldToScreenPoint(leftFootPos);
             rightFootScreenPos = Camera.main.WorldToScreenPoint(rightFootPos);
 
-
             headScreenPos.x -= halfsize.x;
             headScreenPos.y -= halfsize.y;
             leftHandScreenPos.x -= halfsize.x;
-            leftHandScreenPos.y -= halfsize.x;
+            leftHandScreenPos.y -= halfsize.y;
             rightHandScreenPos.x -= halfsize.x;
-            rightHandScreenPos.y -= halfsize.x;
+            rightHandScreenPos.y -= halfsize.y;
             leftFootScreenPos.x -= halfsize.x;
-            leftFootScreenPos.y -= halfsize.x;
+            leftFootScreenPos.y -= halfsize.y;
             rightFootScreenPos.x -= halfsize.x;
-            rightFootScreenPos.y -= halfsize.x;
+            rightFootScreenPos.y -= halfsize.y;
 
 
-            screenPos.Add(headScreenPos);
-            screenPos.Add(leftHandScreenPos);
-            screenPos.Add(rightHandScreenPos);
-            screenPos.Add(leftFootScreenPos);
-            screenPos.Add(rightFootScreenPos);
+            Debug.Log(headScreenPos);
+            Debug.Log(leftHandScreenPos);
+            Debug.Log(rightHandScreenPos);
+            Debug.Log(leftFootScreenPos);
+            Debug.Log(rightFootScreenPos);
+
+            screenPosX.Add(headScreenPos.x);
+            screenPosX.Add(leftHandScreenPos.x);
+            screenPosX.Add(rightHandScreenPos.x);
+            screenPosX.Add(leftFootScreenPos.x);
+            screenPosX.Add(rightFootScreenPos.x);
+
+            screenPosY.Add(headScreenPos.y);
+            screenPosY.Add(leftHandScreenPos.y);
+            screenPosY.Add(rightHandScreenPos.y);
+            screenPosY.Add(leftFootScreenPos.y);
+            screenPosY.Add(rightFootScreenPos.y);
 
 
+            GetMinMaxScreenPosition(ref screenPosX, ref screenPosY);
 
-            images[0].transform.localPosition = test;
-            images[0].transform.localPosition += new Vector3(-50.0f, 0, 0);
-            images[1].transform.localPosition = test;
-            images[1].transform.localPosition += new Vector3(50.0f, 0, 0);
+            getMinX = screenPosX[0];
+            getMinY = screenPosY[0];
+            getMaxX = screenPosX[4];
+            getMaxY = screenPosY[4];
 
+            Debug.Log(getMinX);
+            Debug.Log(getMinY);
+            Debug.Log(getMaxX);
+            Debug.Log(getMaxY);
 
-            //images[2].transform.localPosition = targetUIPosition;
-            //images[2].transform.localPosition += new Vector3(70.0f, -50.0f, 0);
-            //images[3].transform.localPosition = targetUIPosition;
-            //images[3].transform.localPosition += new Vector3(-70.0f, -50.0f, 0);
+            images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
+            images[0].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
+            images[1].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
+            images[1].transform.localPosition = new Vector3(getMinX, getMinY, 0);
 
             yield return null;
         }
     }
 
-    List<Vector3> GetMinMaxScreenPosition(List<Vector3> pos)
+    void GetMinMaxScreenPosition(ref List<float> posX, ref List<float> posY)
     {
-        List<Vector3> minMaxPos = new List<Vector3>();
-        float minX = 0.0f;
-        float maxX = 0.0f;
-        float minY = 0.0f;
-        float maxY = 0.0f;
+    
+        float tempX = 0.0f;
+        float tempY = 0.0f;
 
-
-        for (int i=0; i< pos.Count; i++)
+        for (int i=0; i< posX.Count-1; i++)
         {
-            if(pos[i].x <= pos[i+1].x) minX = pos[i].x;
-            if(pos[i].y <= pos[i+1].y) minY = pos[i].x;
+            if(posX[i] >= posX[i+1])
+            {
+                tempX = posX[i+1];
+                posX[i + 1] = posX[i];
+                posX[i] = tempX;
+            }
+
+            if (posY[i] >= posY[i + 1])
+            {
+                tempY = posY[i + 1];
+                posY[i + 1] = posY[i];
+                posY[i] = tempY;
+            }
         }
-
-
-
-        return 
     }
 }
