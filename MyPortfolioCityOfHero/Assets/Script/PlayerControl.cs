@@ -5,17 +5,23 @@ using UnityEngine;
 
 public class PlayerControl : CharacterMovement
 {
+    public enum STATE
+    {
+        IDLE, WALK, ATTACK, DEAD, SELECT, FLY
+    }
+
+    public STATE myState = STATE.IDLE;
 
     public LayerMask PickingMask;
     BoxCollider _collider;
-    float horizontal;
-    float vertical;
+    float horizontal = 0.0f;
+    float vertical = 0.0f;
     private bool isGround = true;
     TargetSelect _targetSelect;
 
     // Start is called before the first frame update
     private void Awake()
-    {       
+    {
     }
     void Start()
     {
@@ -26,18 +32,62 @@ public class PlayerControl : CharacterMovement
     // Update is called once per frame
     void Update()
     {
-        CharacterMove();
-        CharacterJump();
-    }
-
-
-    void CharacterMove()
-    {
+        StateProcess();
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
-        base.KeyboardMovePosition(horizontal, vertical);
     }
+
+    public void ChangeState(STATE s)
+    {
+        if (myState == s) return;
+        myState = s;
+
+        switch (myState)
+        {
+            case STATE.IDLE:
+
+                break;
+            case STATE.WALK:
+                break;
+            case STATE.ATTACK:
+                break;
+            case STATE.DEAD:
+                break;
+            case STATE.FLY:
+                break;
+        }
+    }
+
+    void StateProcess()
+    {
+        switch (myState)
+        {
+            case STATE.IDLE:
+                if (horizontal != 0.0f || vertical != 0.0f)
+                {
+                    ChangeState(STATE.WALK);
+                }
+                CharacterJump();
+                break;
+            case STATE.WALK:
+                base.KeyboardMovePosition(horizontal, vertical);
+                if(horizontal == 0.0f && vertical == 0.0f)
+                {
+                    ChangeState(STATE.IDLE);
+                }
+                CharacterJump();
+                break;
+            case STATE.ATTACK:
+                break;
+            case STATE.DEAD:
+                break;
+            case STATE.FLY:
+                break;
+        }
+    }
+
+  
 
     void CharacterJump()
     {
@@ -54,6 +104,7 @@ public class PlayerControl : CharacterMovement
     void OnCollisionEnter(Collision other)
     {
         isGround = true;
-        Debug.Log(other.gameObject.name);
     }
+
+    
 }

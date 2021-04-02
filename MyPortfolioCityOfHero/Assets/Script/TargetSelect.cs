@@ -123,24 +123,13 @@ public class TargetSelect : MonoBehaviour
             screenPosY.Add(leftFootScreenPos.y);
             screenPosY.Add(rightFootScreenPos.y);
 
-
-            GetMinMaxScreenPosition(ref screenPosX, ref screenPosY);
+            screenPosX.Sort();
+            screenPosY.Sort();          
 
             getMinX = screenPosX[0];
             getMinY = screenPosY[0];
             getMaxX = screenPosX[4];
             getMaxY = screenPosY[4];
-
-
-            Debug.Log("최소값x" + getMinX);
-            Debug.Log("최소값y" + getMinY);
-            Debug.Log("최대값x" + getMaxX);
-            Debug.Log("최대값y" + getMaxY);
-
-            Debug.Log("이미지 좌측 상단 위치" + images[0].transform.localPosition);
-            Debug.Log("이미지 우측 상단 위치" + images[1].transform.localPosition);
-            Debug.Log("이미지 우측 하단 위치" + images[2].transform.localPosition);
-            Debug.Log("이미지 좌측 하단 위치" + images[3].transform.localPosition);
 
             images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
             images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
@@ -148,30 +137,6 @@ public class TargetSelect : MonoBehaviour
             images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
 
             yield return null;
-        }
-    }
-
-    void GetMinMaxScreenPosition(ref List<float> posX, ref List<float> posY)
-    {
-    
-        float tempX = 0.0f;
-        float tempY = 0.0f;
-
-        for (int i=0; i< posX.Count-1; i++)
-        {
-            if(posX[i] >= posX[i+1])
-            {
-                tempX = posX[i+1];
-                posX[i + 1] = posX[i];
-                posX[i] = tempX;
-            }
-
-            if (posY[i] >= posY[i + 1])
-            {
-                tempY = posY[i + 1];
-                posY[i + 1] = posY[i];
-                posY[i] = tempY;
-            }
         }
     }
 }
