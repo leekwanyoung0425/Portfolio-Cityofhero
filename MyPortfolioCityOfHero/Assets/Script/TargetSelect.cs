@@ -16,12 +16,8 @@ public class TargetSelect : MonoBehaviour
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
-        Debug.Log(canvas.pixelRect.width);
-        Debug.Log(canvas.pixelRect.height);
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
-        Debug.Log(halfsize.x);
-        Debug.Log(halfsize.y);
     }
 
     void Update()
@@ -31,28 +27,41 @@ public class TargetSelect : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             int count = 0;
+            Transform headTr;
+            Transform leftHandTr;
+            Transform rightHandTr;
+            Transform leftFootTr;
+            Transform rightFootTr;
+
 
             if (Physics.Raycast(ray, out hit, 1000.0f, Monster))
             {
 
+                InsfabtargetImage.Clear();
                 foreach (Image image in prefabtargetImage)
-                {               
+                {                    
                     InsfabtargetImage.Add(Instantiate(image));
                     InsfabtargetImage[count].transform.SetParent(FindObjectOfType<Canvas>().transform);
                     ++count;                                      
                 }
 
+                headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
+                leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;
+                rightHandTr = hit.transform.GetComponentInChildren<GetRightHandPosition>().tr;
+                leftFootTr = hit.transform.GetComponentInChildren<GetLeftFootPosition>().tr;
+                rightFootTr = hit.transform.GetComponentInChildren<GetRightFootPosition>().tr;
+
                 if (isTargetingFollow != null) StopCoroutine(isTargetingFollow);
-                isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, InsfabtargetImage));
+                isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, InsfabtargetImage , headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));
+              
             }
         }
     }
 
-    IEnumerator TargetingFollow(Transform target, List<Image> images)
+    IEnumerator TargetingFollow(Transform target, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
     {
         List<float> screenPosX = new List<float>();
         List<float> screenPosY = new List<float>();
-        List<float> getMinMaxPos = new List<float>();
 
         Vector3 headPos;
         Vector3 leftHandPos;
@@ -72,21 +81,17 @@ public class TargetSelect : MonoBehaviour
         float getMaxY;
 
 
-        headPos = target.GetComponentInChildren<GetHeadPosition>().pos;
-        leftHandPos = target.GetComponentInChildren<GetLeftHandPosition>().pos;
-        rightHandPos = target.GetComponentInChildren<GetRightHandPosition>().pos;
-        leftFootPos = target.GetComponentInChildren<GetLeftFootPosition>().pos;
-        rightFootPos = target.GetComponentInChildren<GetRightFootPosition>().pos;
-
-        Debug.Log(headPos);
-        Debug.Log(leftHandPos);
-        Debug.Log(rightHandPos);
-        Debug.Log(leftFootPos);
-        Debug.Log(rightFootPos);
-
 
         while (target != null)
         {
+            screenPosX.Clear();
+            screenPosY.Clear();
+
+            headPos = headTr.position;
+            leftHandPos = leftHandTr.position;
+            rightHandPos = rightHandTr.position;
+            leftFootPos = leftFootTr.position;
+            rightFootPos = rightFootTr.position;
 
             headScreenPos = Camera.main.WorldToScreenPoint(headPos);
             leftHandScreenPos = Camera.main.WorldToScreenPoint(leftHandPos);
@@ -105,12 +110,6 @@ public class TargetSelect : MonoBehaviour
             rightFootScreenPos.x -= halfsize.x;
             rightFootScreenPos.y -= halfsize.y;
 
-
-            Debug.Log(headScreenPos);
-            Debug.Log(leftHandScreenPos);
-            Debug.Log(rightHandScreenPos);
-            Debug.Log(leftFootScreenPos);
-            Debug.Log(rightFootScreenPos);
 
             screenPosX.Add(headScreenPos.x);
             screenPosX.Add(leftHandScreenPos.x);
@@ -132,15 +131,21 @@ public class TargetSelect : MonoBehaviour
             getMaxX = screenPosX[4];
             getMaxY = screenPosY[4];
 
-            Debug.Log(getMinX);
-            Debug.Log(getMinY);
-            Debug.Log(getMaxX);
-            Debug.Log(getMaxY);
+
+            Debug.Log("최소값x" + getMinX);
+            Debug.Log("최소값y" + getMinY);
+            Debug.Log("최대값x" + getMaxX);
+            Debug.Log("최대값y" + getMaxY);
+
+            Debug.Log("이미지 좌측 상단 위치" + images[0].transform.localPosition);
+            Debug.Log("이미지 우측 상단 위치" + images[1].transform.localPosition);
+            Debug.Log("이미지 우측 하단 위치" + images[2].transform.localPosition);
+            Debug.Log("이미지 좌측 하단 위치" + images[3].transform.localPosition);
 
             images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
-            images[0].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
-            images[1].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
-            images[1].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+            images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
+            images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
+            images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
 
             yield return null;
         }

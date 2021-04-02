@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class GetLeftFootPosition : MonoBehaviour
 {
-    public Vector3 pos;
+    public Transform tr;
     // Start is called before the first frame update
     private void Awake()
     {
-        pos = this.transform.position;
+        tr = this.transform;
     }
 
     // Update is called once per frame
