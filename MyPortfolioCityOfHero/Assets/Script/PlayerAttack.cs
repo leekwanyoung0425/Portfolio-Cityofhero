@@ -44,7 +44,7 @@ public class PlayerAttack : MonoBehaviour
             case STATE.Wait:
                 if (changeweight != null) StopCoroutine(changeweight);
                 changeweight = StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
-                playerControl.ChangeState(PlayerControl.STATE.WALK);
+                playerControl.ChangeState(PlayerControl.STATE.IDLE);
                 break;
             case STATE.NormalPunch:
                 StartCoroutine(CharacterRotate(targetSelect.GetselectTarget));
@@ -67,12 +67,7 @@ public class PlayerAttack : MonoBehaviour
         {
             case STATE.Wait:
                 break;
-            case STATE.NormalPunch:
-                myAnim.SetTrigger("Normal_Punch");
-                if (horizontal != 0.0f || vertical != 0.0f)
-                {
-                    ChangeState(STATE.Wait);
-                }                
+            case STATE.NormalPunch:                                            
                 break;
             case STATE.SkillKick:
                 break;
@@ -135,6 +130,13 @@ public class PlayerAttack : MonoBehaviour
 
             this.transform.Rotate(this.transform.up * delta * rotDirection);
 
+            yield return null;
+        }
+        myAnim.SetTrigger("Normal_Punch");
+
+        while(!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Idle -> Normal_Punch") )
+        {
+            Debug.Log("애니메이션끝");
             yield return null;
         }
     }

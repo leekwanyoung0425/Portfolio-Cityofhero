@@ -18,10 +18,6 @@ public class CameraMove : MonoBehaviour
     public float ZoomSmoothSpeed = 10.0f;
 
 
-
-    //이 옵션을 키면 1인칭 카메라 모드로 변경
-    public bool ControllerRotate = false;
-
     Vector3 LookUp;
     Vector3 TurnRight;
 

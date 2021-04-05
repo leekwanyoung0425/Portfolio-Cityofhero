@@ -95,7 +95,7 @@ public class TargetSelect : MonoBehaviour
         float outRange = 15.0f;
 
 
-        while (target != null || GetIsSelect)
+        while (target != null && GetIsSelect)
         {
             float dist = (transform.position - target.position).magnitude;
 
@@ -107,7 +107,6 @@ public class TargetSelect : MonoBehaviour
                     Destroy(image.gameObject);
                 }
                 InsfabtargetImage.Clear();
-                StopCoroutine(isTargetingFollow);
             }
             else
             {

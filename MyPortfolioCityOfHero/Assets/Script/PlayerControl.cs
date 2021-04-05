@@ -66,8 +66,7 @@ public class PlayerControl : CharacterMovement
 
         switch (myState)
         {
-            case STATE.IDLE:
-                attackState.ChangeState(PlayerAttack.STATE.Wait);
+            case STATE.IDLE:                
                 break;
             case STATE.WALK:
                 break;
