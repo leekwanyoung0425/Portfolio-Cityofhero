@@ -9,10 +9,13 @@ public class TargetSelect : MonoBehaviour
     public List<Image> prefabtargetImage = new List<Image>();
     List<Image> InsfabtargetImage =  new List<Image>();
     Canvas canvas;
+    public GameObject selectIamgePanel;
     Vector2 halfsize = Vector2.zero;
     Coroutine isTargetingFollow = null;
+ 
+    public Transform GetselectTarget { get; private set; }
+    public bool GetIsSelect { get; private set; }
 
-    
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
@@ -24,6 +27,15 @@ public class TargetSelect : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (InsfabtargetImage != null)
+            {
+                foreach (Image image in InsfabtargetImage)
+                {
+                    Destroy(image.gameObject);
+                }
+                InsfabtargetImage.Clear();
+            }
+
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             int count = 0;
@@ -34,26 +46,26 @@ public class TargetSelect : MonoBehaviour
             Transform rightFootTr;
 
 
-            if (Physics.Raycast(ray, out hit, 1000.0f, Monster))
-            {
+            if (Physics.Raycast(ray, out hit, 100.0f, Monster))
+            {   
+               GetIsSelect = true;
+               GetselectTarget = hit.transform;
 
-                InsfabtargetImage.Clear();
-                foreach (Image image in prefabtargetImage)
-                {                    
-                    InsfabtargetImage.Add(Instantiate(image));
-                    InsfabtargetImage[count].transform.SetParent(FindObjectOfType<Canvas>().transform);
-                    ++count;                                      
-                }
+               foreach (Image image in prefabtargetImage)
+               {
+                   InsfabtargetImage.Add(Instantiate(image));
+                   InsfabtargetImage[count].transform.SetParent(selectIamgePanel.transform);
+                   ++count;
+               }
 
-                headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
-                leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;
-                rightHandTr = hit.transform.GetComponentInChildren<GetRightHandPosition>().tr;
-                leftFootTr = hit.transform.GetComponentInChildren<GetLeftFootPosition>().tr;
-                rightFootTr = hit.transform.GetComponentInChildren<GetRightFootPosition>().tr;
+               headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
+               leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;
+               rightHandTr = hit.transform.GetComponentInChildren<GetRightHandPosition>().tr;
+               leftFootTr = hit.transform.GetComponentInChildren<GetLeftFootPosition>().tr;
+               rightFootTr = hit.transform.GetComponentInChildren<GetRightFootPosition>().tr;
 
-                if (isTargetingFollow != null) StopCoroutine(isTargetingFollow);
-                isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, InsfabtargetImage , headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));
-              
+               if (isTargetingFollow != null) StopCoroutine(isTargetingFollow);
+               isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, InsfabtargetImage, headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));               
             }
         }
     }
@@ -80,62 +92,77 @@ public class TargetSelect : MonoBehaviour
         float getMaxX;
         float getMaxY;
 
+        float outRange = 15.0f;
 
 
-        while (target != null)
+        while (target != null || GetIsSelect)
         {
-            screenPosX.Clear();
-            screenPosY.Clear();
+            float dist = (transform.position - target.position).magnitude;
 
-            headPos = headTr.position;
-            leftHandPos = leftHandTr.position;
-            rightHandPos = rightHandTr.position;
-            leftFootPos = leftFootTr.position;
-            rightFootPos = rightFootTr.position;
+            if (dist >= outRange)
+            {
+                GetIsSelect = false;
+                foreach (Image image in InsfabtargetImage)
+                {
+                    Destroy(image.gameObject);
+                }
+                InsfabtargetImage.Clear();
+                StopCoroutine(isTargetingFollow);
+            }
+            else
+            {
+                screenPosX.Clear();
+                screenPosY.Clear();
 
-            headScreenPos = Camera.main.WorldToScreenPoint(headPos);
-            leftHandScreenPos = Camera.main.WorldToScreenPoint(leftHandPos);
-            rightHandScreenPos = Camera.main.WorldToScreenPoint(rightHandPos);
-            leftFootScreenPos = Camera.main.WorldToScreenPoint(leftFootPos);
-            rightFootScreenPos = Camera.main.WorldToScreenPoint(rightFootPos);
+                headPos = headTr.position;
+                leftHandPos = leftHandTr.position;
+                rightHandPos = rightHandTr.position;
+                leftFootPos = leftFootTr.position;
+                rightFootPos = rightFootTr.position;
 
-            headScreenPos.x -= halfsize.x;
-            headScreenPos.y -= halfsize.y;
-            leftHandScreenPos.x -= halfsize.x;
-            leftHandScreenPos.y -= halfsize.y;
-            rightHandScreenPos.x -= halfsize.x;
-            rightHandScreenPos.y -= halfsize.y;
-            leftFootScreenPos.x -= halfsize.x;
-            leftFootScreenPos.y -= halfsize.y;
-            rightFootScreenPos.x -= halfsize.x;
-            rightFootScreenPos.y -= halfsize.y;
+                headScreenPos = Camera.main.WorldToScreenPoint(headPos);
+                leftHandScreenPos = Camera.main.WorldToScreenPoint(leftHandPos);
+                rightHandScreenPos = Camera.main.WorldToScreenPoint(rightHandPos);
+                leftFootScreenPos = Camera.main.WorldToScreenPoint(leftFootPos);
+                rightFootScreenPos = Camera.main.WorldToScreenPoint(rightFootPos);
+
+                headScreenPos.x -= halfsize.x;
+                headScreenPos.y -= halfsize.y;
+                leftHandScreenPos.x -= halfsize.x;
+                leftHandScreenPos.y -= halfsize.y;
+                rightHandScreenPos.x -= halfsize.x;
+                rightHandScreenPos.y -= halfsize.y;
+                leftFootScreenPos.x -= halfsize.x;
+                leftFootScreenPos.y -= halfsize.y;
+                rightFootScreenPos.x -= halfsize.x;
+                rightFootScreenPos.y -= halfsize.y;
 
 
-            screenPosX.Add(headScreenPos.x);
-            screenPosX.Add(leftHandScreenPos.x);
-            screenPosX.Add(rightHandScreenPos.x);
-            screenPosX.Add(leftFootScreenPos.x);
-            screenPosX.Add(rightFootScreenPos.x);
+                screenPosX.Add(headScreenPos.x);
+                screenPosX.Add(leftHandScreenPos.x);
+                screenPosX.Add(rightHandScreenPos.x);
+                screenPosX.Add(leftFootScreenPos.x);
+                screenPosX.Add(rightFootScreenPos.x);
 
-            screenPosY.Add(headScreenPos.y);
-            screenPosY.Add(leftHandScreenPos.y);
-            screenPosY.Add(rightHandScreenPos.y);
-            screenPosY.Add(leftFootScreenPos.y);
-            screenPosY.Add(rightFootScreenPos.y);
+                screenPosY.Add(headScreenPos.y);
+                screenPosY.Add(leftHandScreenPos.y);
+                screenPosY.Add(rightHandScreenPos.y);
+                screenPosY.Add(leftFootScreenPos.y);
+                screenPosY.Add(rightFootScreenPos.y);
 
-            screenPosX.Sort();
-            screenPosY.Sort();          
+                screenPosX.Sort();
+                screenPosY.Sort();
 
-            getMinX = screenPosX[0];
-            getMinY = screenPosY[0];
-            getMaxX = screenPosX[4];
-            getMaxY = screenPosY[4];
+                getMinX = screenPosX[0];
+                getMinY = screenPosY[0];
+                getMaxX = screenPosX[4];
+                getMaxY = screenPosY[4];
 
-            images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
-            images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
-            images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
-            images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
-
+                images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
+                images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
+                images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
+                images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+            }
             yield return null;
         }
     }
