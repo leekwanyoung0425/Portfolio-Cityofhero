@@ -27,6 +27,10 @@ public class TargetSelect : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            GetIsSelect = false;
+            //GetselectTarget.GetComponentInChildren<SkinnedMeshRenderer>().getm
+
+
             if (InsfabtargetImage != null)
             {
                 foreach (Image image in InsfabtargetImage)
@@ -44,7 +48,6 @@ public class TargetSelect : MonoBehaviour
             Transform rightHandTr;
             Transform leftFootTr;
             Transform rightFootTr;
-
 
             if (Physics.Raycast(ray, out hit, 100.0f, Monster))
             {   
@@ -160,7 +163,7 @@ public class TargetSelect : MonoBehaviour
                 images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
                 images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
                 images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
-                images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+                images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);               
             }
             yield return null;
         }
