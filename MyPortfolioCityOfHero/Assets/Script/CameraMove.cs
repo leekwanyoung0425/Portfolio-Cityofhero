@@ -19,7 +19,7 @@ public class CameraMove : MonoBehaviour
 
 
     Vector3 LookUp;
-    Vector3 TurnRight;
+    public Vector3 TurnRight;
 
     // Start is called before the first frame update
     void Start()
@@ -39,15 +39,16 @@ public class CameraMove : MonoBehaviour
             LookUp.x += delta;
             if (LookUp.x > 180f) LookUp.x -= 360.0f;
             LookUp.x = Mathf.Clamp(LookUp.x, LookUpArea.x, LookUpArea.y);
-
-            //TurnRight
-            delta = Input.GetAxis("Mouse X") * RotSpeed * Time.deltaTime;
-            TurnRight.y += delta;
-
-
-            this.transform.parent.localRotation = Quaternion.Euler(TurnRight);
             this.transform.localRotation = Quaternion.Euler(LookUp);
-  
+            
+            //TurnRight
+            if (Input.GetAxis("Mouse X") > Mathf.Epsilon || Input.GetAxis("Mouse X") < -Mathf.Epsilon)
+            {
+                delta = Input.GetAxis("Mouse X") * RotSpeed * Time.deltaTime;
+                TurnRight.y += delta;
+                this.transform.parent.localRotation = Quaternion.Euler(TurnRight);
+            }
+           
         }
 
         if (Input.GetAxis("Mouse ScrollWheel") > Mathf.Epsilon ||

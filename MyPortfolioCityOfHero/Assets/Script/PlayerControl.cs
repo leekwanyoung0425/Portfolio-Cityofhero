@@ -27,6 +27,8 @@ public class PlayerControl : CharacterMovement
     public float shortAttackDist = 3.0f;
     public float longAttackDist = 15.0f;
 
+    public bool GetIsAttacking { get; set; }
+
     public Transform headTr;
     public TMPro.TMP_Text textPrefab;
     Canvas canvas;
@@ -42,6 +44,7 @@ public class PlayerControl : CharacterMovement
         canvas = FindObjectOfType<Canvas>();
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
+        GetIsAttacking = false;
     }
 
     // Update is called once per frame
@@ -136,8 +139,9 @@ public class PlayerControl : CharacterMovement
     {
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (targetSelect == true && isShortAttackPossible == true)
+            if (targetSelect == true && isShortAttackPossible == true && !GetIsAttacking)
             {
+                GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
                 attackState.ChangeState(PlayerAttack.STATE.NormalPunch);
             }

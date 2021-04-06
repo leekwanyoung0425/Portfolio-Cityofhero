@@ -7,8 +7,8 @@ public class PlayerAttack : MonoBehaviour
     public Animator myAnim;
     public TargetSelect targetSelect;
     public float rotSpeed = 5.0f;
-    bool attackStart = false;
-
+    public Transform myModel;
+    public CameraMove cameramove;
 
     public enum STATE
     {
@@ -21,6 +21,7 @@ public class PlayerAttack : MonoBehaviour
 
     public PlayerControl playerControl;
     Coroutine changeweight = null;
+    Coroutine characterRotate = null;
 
     void Start()
     {       
@@ -47,10 +48,10 @@ public class PlayerAttack : MonoBehaviour
                 playerControl.ChangeState(PlayerControl.STATE.IDLE);
                 break;
             case STATE.NormalPunch:
-                StartCoroutine(CharacterRotate(targetSelect.GetselectTarget));
-                if (changeweight != null && attackStart) StopCoroutine(changeweight);
+                if (changeweight != null) StopCoroutine(changeweight);
                 changeweight = StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
-                attackStart = false;
+                if (characterRotate != null) StopCoroutine(characterRotate);
+                characterRotate = StartCoroutine(CharacterRotate(targetSelect.GetselectTarget));
                 break;
             case STATE.SkillKick:
                 break;
@@ -108,11 +109,11 @@ public class PlayerAttack : MonoBehaviour
         Vector3 direction = target.position - this.transform.position;
         direction.Normalize();
 
-        float rot = Vector3.Dot(direction, this.transform.forward);
+        float rot = Vector3.Dot(direction, myModel.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;
 
-        if(Vector3.Dot(this.transform.right, direction) < 0.0f)
+        if(Vector3.Dot(myModel.right, direction) < 0.0f)
         {
             rotDirection = -1.0f;
         }
@@ -121,23 +122,21 @@ public class PlayerAttack : MonoBehaviour
         {
             delta = rotSpeed * Time.smoothDeltaTime;
             
-            if(rot - delta > rot)
+            if(rot - delta <= Mathf.Epsilon)
             {
-                delta = rot;
-                attackStart = true;
+                delta = rot;              
             }
             rot -= delta;
 
             this.transform.Rotate(this.transform.up * delta * rotDirection);
-
             yield return null;
         }
-        myAnim.SetTrigger("Normal_Punch");
+        Debug.Log(this.transform.rotation.y);
+        
 
-        while(!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Idle -> Normal_Punch") )
+        if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Normal_Punch"))
         {
-            Debug.Log("애니메이션끝");
-            yield return null;
+            myAnim.SetTrigger("Normal_Punch");
         }
     }
 }
