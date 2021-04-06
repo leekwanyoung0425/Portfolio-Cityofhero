@@ -131,7 +131,7 @@ public class PlayerAttack : MonoBehaviour
             this.transform.Rotate(this.transform.up * delta * rotDirection);
             yield return null;
         }
-        Debug.Log(this.transform.rotation.y);
+        cameramove.TurnRight = this.transform.localRotation.eulerAngles;
         
 
         if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Normal_Punch"))
