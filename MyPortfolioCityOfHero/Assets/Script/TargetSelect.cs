@@ -27,18 +27,6 @@ public class TargetSelect : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            GetIsSelect = false;
-            //GetselectTarget.GetComponentInChildren<SkinnedMeshRenderer>().getm
-
-
-            if (InsfabtargetImage != null)
-            {
-                foreach (Image image in InsfabtargetImage)
-                {
-                    Destroy(image.gameObject);
-                }
-                InsfabtargetImage.Clear();
-            }
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -54,7 +42,19 @@ public class TargetSelect : MonoBehaviour
                GetIsSelect = true;
                GetselectTarget = hit.transform;
 
-               foreach (Image image in prefabtargetImage)
+                Material[] _material = GetselectTarget.GetComponentInChildren<GetMaterial>().GetmyMaterial;
+                _material[1].SetFloat("Boolean_AB71AB7D", 1.0f);
+
+                if (InsfabtargetImage != null)
+                {
+                    foreach (Image image in InsfabtargetImage)
+                    {
+                        Destroy(image.gameObject);
+                    }
+                    InsfabtargetImage.Clear();
+                }
+
+                foreach (Image image in prefabtargetImage)
                {
                    InsfabtargetImage.Add(Instantiate(image));
                    InsfabtargetImage[count].transform.SetParent(selectIamgePanel.transform);
@@ -68,12 +68,12 @@ public class TargetSelect : MonoBehaviour
                rightFootTr = hit.transform.GetComponentInChildren<GetRightFootPosition>().tr;
 
                if (isTargetingFollow != null) StopCoroutine(isTargetingFollow);
-               isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, InsfabtargetImage, headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));               
+               isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, _material, InsfabtargetImage, headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));               
             }
         }
     }
 
-    IEnumerator TargetingFollow(Transform target, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
+    IEnumerator TargetingFollow(Transform target, Material[] _material, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
     {
         List<float> screenPosX = new List<float>();
         List<float> screenPosY = new List<float>();
@@ -105,6 +105,7 @@ public class TargetSelect : MonoBehaviour
             if (dist >= outRange)
             {
                 GetIsSelect = false;
+                _material[1].SetFloat("Boolean_AB71AB7D", 0.0f);
                 foreach (Image image in InsfabtargetImage)
                 {
                     Destroy(image.gameObject);
