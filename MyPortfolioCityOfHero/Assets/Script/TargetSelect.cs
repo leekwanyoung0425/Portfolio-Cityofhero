@@ -16,6 +16,9 @@ public class TargetSelect : MonoBehaviour
     public Transform GetselectTarget { get; private set; }
     public bool GetIsSelect { get; private set; }
 
+    public Slider targetHpBarPrefab;
+    public Transform HpbarParent;
+
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
@@ -60,6 +63,10 @@ public class TargetSelect : MonoBehaviour
                    InsfabtargetImage[count].transform.SetParent(selectIamgePanel.transform);
                    ++count;
                }
+
+                Slider hpBar = Instantiate(targetHpBarPrefab);
+                hpBar.transform.SetParent(HpbarParent);
+                hpBar.GetComponent<MonsterHp>().StartFollow(hit.transform);
 
                headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
                leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;

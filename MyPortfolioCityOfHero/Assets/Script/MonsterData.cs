@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu
-    (fileName = "Monster Data",
-    menuName = "ScriptableObject/Monster Data",
-    order = int.MaxValue
-    )
- ]
+[CreateAssetMenu (fileName = "Monster Data",menuName = "ScriptableObject/Monster Data",order = int.MaxValue)]
 public class MonsterData : ScriptableObject
 {
     public int Index = 0;
