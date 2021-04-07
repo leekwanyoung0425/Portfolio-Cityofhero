@@ -21,11 +21,25 @@ public class MonsterStatusData
     }
 }
 
+[System.Serializable]
+public class Serialization<T>
+{
+    [SerializeField]
+    List<T> target;
+    public List<T> ToList() { return target; }
+
+    public Serialization(List<T> target)
+    {
+        this.target = target;
+    }
+}
+
 public class MonsterStatus : MonoBehaviour
 {
 
-    List<MonsterStatusData> _MonsterStatusData = new List<MonsterStatusData>();
+    public List<MonsterStatusData> _MonsterStatusData = new List<MonsterStatusData>();
     public MonsterStatusData Data;
+
 
     public void DataInput()
     {
@@ -34,18 +48,11 @@ public class MonsterStatus : MonoBehaviour
 
 
     public void SaveJson()
-    {
-        Debug.Log(_MonsterStatusData[0].Index);
-        Debug.Log(_MonsterStatusData[0].MonsterName);
-        Debug.Log(_MonsterStatusData[0].HP);
-        Debug.Log(_MonsterStatusData[0].RespawnPos);
-        Debug.Log(_MonsterStatusData[1].Index);
-        Debug.Log(_MonsterStatusData[1].MonsterName);
-        Debug.Log(_MonsterStatusData[1].HP);
-        Debug.Log(_MonsterStatusData[1].RespawnPos);
-        //string path = Application.dataPath + "/MonsterStatusData.json";
-        //string[] jsdata = JsonUtility.ToJson(_MonsterStatusData);
-        //File.WriteAllText(path, jsdata);
+    {        
+        string path = Application.dataPath + "/MonsterStatusData.json";
+        string jsdata = JsonUtility.ToJson(new Serialization<MonsterStatusData>(_MonsterStatusData));
+        File.WriteAllText(path, jsdata);
+        Debug.Log(jsdata);
     }
 
 
