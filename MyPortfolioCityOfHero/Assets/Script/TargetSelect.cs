@@ -64,9 +64,6 @@ public class TargetSelect : MonoBehaviour
                    ++count;
                }
 
-                Slider hpBar = Instantiate(targetHpBarPrefab);
-                hpBar.transform.SetParent(HpbarParent);
-                hpBar.GetComponent<MonsterHp>().StartFollow(hit.transform);
 
                headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
                leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;
@@ -82,6 +79,13 @@ public class TargetSelect : MonoBehaviour
 
     IEnumerator TargetingFollow(Transform target, Material[] _material, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
     {
+
+        Vector3 setHpPos = Vector3.zero;
+        Slider hpBar = Instantiate(targetHpBarPrefab);
+        hpBar.transform.SetParent(HpbarParent);
+        float targetingMaxDistance =  5.0f;
+        float targetDistance = 0.0f;
+
         List<float> screenPosX = new List<float>();
         List<float> screenPosY = new List<float>();
 
@@ -101,6 +105,11 @@ public class TargetSelect : MonoBehaviour
         float getMinY;
         float getMaxX;
         float getMaxY;
+
+        float preMinX = 0.0f;
+        float preMinY = 0.0f;
+        float preMaxX = 0.0f;
+        float preMaxY= 0.0f;
 
         float outRange = 15.0f;
 
@@ -168,10 +177,36 @@ public class TargetSelect : MonoBehaviour
                 getMaxX = screenPosX[4];
                 getMaxY = screenPosY[4];
 
-                images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
-                images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
-                images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
-                images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);               
+                //preMinX
+                //preMinY
+                //preMaxX
+                //preMaxY
+
+                targetDistance = Mathf.Abs(screenPosX[4] - screenPosX[0]);
+
+                if (targetDistance < targetingMaxDistance)
+                {
+                    if(true)
+                    {
+
+
+                    }
+                    images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
+                    images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
+                    images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
+                    images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+                }
+                else
+                {
+                    images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
+                    images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
+                    images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
+                    images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+                }
+
+                setHpPos.x = Mathf.Lerp(getMinX, getMaxX, 0.5f);
+                setHpPos.y = getMaxY;
+                hpBar.GetComponent<MonsterHp>().SetHpPos(setHpPos);
             }
             yield return null;
         }
