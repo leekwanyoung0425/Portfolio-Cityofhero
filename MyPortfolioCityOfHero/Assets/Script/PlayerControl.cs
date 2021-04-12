@@ -12,7 +12,6 @@ public class PlayerControl : CharacterMovement
 
     public STATE myState = STATE.IDLE;
 
-    public LayerMask PickingMask;
     BoxCollider _collider;
     float horizontal = 0.0f;
     float vertical = 0.0f;
@@ -54,11 +53,6 @@ public class PlayerControl : CharacterMovement
         
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
-
-        if(Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            AttackAlertText();
-        }
 
     }
 
@@ -139,7 +133,7 @@ public class PlayerControl : CharacterMovement
     {
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (targetSelect == true && isShortAttackPossible == true && !GetIsAttacking)
+            if (targetSelect.GetselectTarget != null && isShortAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
             {
                 GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
@@ -147,30 +141,40 @@ public class PlayerControl : CharacterMovement
             }
             else
             {
-                if (attackAlertTextCheck != null) return;
-                attackAlertTextCheck = StartCoroutine("AttackAlertText");
+                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isShortAttackPossible, GetIsAttacking));
             }
         }
         else if(Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (targetSelect == true && isShortAttackPossible == true)
+            if (targetSelect.GetselectTarget != null && isShortAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
             {
                 ChangeState(STATE.ATTACK);
                 attackState.ChangeState(PlayerAttack.STATE.SkillKick);
             }
+            else
+            {
+                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isShortAttackPossible, GetIsAttacking));
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (targetSelect == true || isLongAttackPossible == true)
+            if (targetSelect.GetselectTarget != null && isLongAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
             {
                 ChangeState(STATE.ATTACK);
                 attackState.ChangeState(PlayerAttack.STATE.SkillMagicFire);
-            }          
+            }
+            else
+            {
+                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isLongAttackPossible, GetIsAttacking));
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            ChangeState(STATE.ATTACK);
-            attackState.ChangeState(PlayerAttack.STATE.SkillBomb);
+            if(!GetIsAttacking)
+            {
+                ChangeState(STATE.ATTACK);
+                attackState.ChangeState(PlayerAttack.STATE.SkillBomb);
+            }
         }
     }
 
@@ -190,15 +194,15 @@ public class PlayerControl : CharacterMovement
             if (target != null)
             {
                 dist = (this.transform.position - target.position).magnitude;
-                isShortAttackPossible = (dist <= shortAttackDist ) ? isShortAttackPossible = true : isShortAttackPossible = false;
-                isLongAttackPossible = (dist <= longAttackDist) ? isLongAttackPossible = true : isLongAttackPossible = false;
+                isShortAttackPossible = (dist <= shortAttackDist ) ? true : false;
+                isLongAttackPossible = (dist <= longAttackDist) ? true : false;
             }
             yield return null;
         }
     }
 
 
-    IEnumerator AttackAlertText()
+    IEnumerator AttackAlertText(Transform targetSelect, bool isDistAttackPossible, bool GetIsAttacking)
     {
         Vector3 textpos = Camera.main.WorldToScreenPoint(headTr.position);
         textpos.x -= halfsize.x;
@@ -206,6 +210,24 @@ public class PlayerControl : CharacterMovement
         TMPro.TMP_Text attackAlertText = Instantiate(textPrefab);
         attackAlertText.transform.SetParent(canvas.transform);
         attackAlertText.transform.localPosition = textpos;
+
+        if (targetSelect == null)
+        {
+            attackAlertText.text = "선택된 타겟이 없습니다.";
+        }
+        else if(!isDistAttackPossible)
+        {
+            attackAlertText.text = "적이 너무 멀리있습니다.";
+        }
+        else if(GetIsAttacking)
+        {
+            attackAlertText.text = "현재 공격중입니다.";
+        }
+        else if(targetSelect.gameObject.layer != LayerMask.NameToLayer("Monster"))
+        {
+            attackAlertText.text = "공격 대상이 아닙니다.";
+        }
+
         float textUpSpeed = 5.0f;
         bool stop = false;
 

@@ -1,13 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
-[CreateAssetMenu (fileName = "Monster Data",menuName = "ScriptableObject/Monster Data",order = int.MaxValue)]
-public class MonsterData : ScriptableObject
+
+
+public class MonsterData : MonoBehaviour
 {
-    public int Index = 0;
-    public string MonsterName = "";
-    public float HP = 0.0f;
-    public float AttackPower = 0.0f;
-    public Vector3 BaseRespawnPos = Vector3.zero;
+    [SerializeField]
+    private MonsterDataManager _monsterData;
+
+    string MonsterName;
+    float MaxHp;
+    float CurHp;
+    Vector3 respawnPos;
+
+    public string GetName { get { return MonsterName; } }
+    public float GetMaxHp { get { return MaxHp; }}
+    public float GetCurHp { get { return CurHp; } set { CurHp = value; } }
+    public Vector3 GetPos { get { return respawnPos; } }
+
+    // Start is called before the first frame update
+    void Start()
+    {      
+        MonsterName = _monsterData.MonsterName;
+        MaxHp = _monsterData.HP;
+        CurHp = _monsterData.HP;
+        respawnPos = _monsterData.BaseRespawnPos;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+      
+    }
+
 }

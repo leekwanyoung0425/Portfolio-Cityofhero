@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TargetSelect : MonoBehaviour
 {
     public LayerMask Monster;
-    public List<Image> prefabtargetImage = new List<Image>();
-    List<Image> InsfabtargetImage =  new List<Image>();
+    public List<Image> targetImage = new List<Image>();
     Canvas canvas;
-    public GameObject selectIamgePanel;
     Vector2 halfsize = Vector2.zero;
     Coroutine isTargetingFollow = null;
  
     public Transform GetselectTarget { get; private set; }
     public bool GetIsSelect { get; private set; }
 
-    public Slider targetHpBarPrefab;
-    public Transform HpbarParent;
+    public GameObject targetUIGroup;
+    Slider hpbar;
+    public TMP_Text nameText;
 
+    Transform prevSelectTarget = null;
+
+ 
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
@@ -33,37 +36,28 @@ public class TargetSelect : MonoBehaviour
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            int count = 0;
             Transform headTr;
             Transform leftHandTr;
             Transform rightHandTr;
             Transform leftFootTr;
             Transform rightFootTr;
+            
 
             if (Physics.Raycast(ray, out hit, 100.0f, Monster))
             {   
-               GetIsSelect = true;
-               GetselectTarget = hit.transform;
-
-                Material[] _material = GetselectTarget.GetComponentInChildren<GetMaterial>().GetmyMaterial;
-                _material[1].SetFloat("Boolean_AB71AB7D", 1.0f);
-
-                if (InsfabtargetImage != null)
+                if(prevSelectTarget != null && prevSelectTarget != hit.transform)
                 {
-                    foreach (Image image in InsfabtargetImage)
-                    {
-                        Destroy(image.gameObject);
-                    }
-                    InsfabtargetImage.Clear();
+                    prevSelectTarget.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 0.0f);
+                    Destroy(prevSelectTarget.GetComponent<MonsterState>().hpbarObj);
+                    prevSelectTarget = hit.transform;
+                }
+                else
+                {
+                    prevSelectTarget = hit.transform;
                 }
 
-                foreach (Image image in prefabtargetImage)
-               {
-                   InsfabtargetImage.Add(Instantiate(image));
-                   InsfabtargetImage[count].transform.SetParent(selectIamgePanel.transform);
-                   ++count;
-               }
-
+               GetIsSelect = true;
+               GetselectTarget = hit.transform;
 
                headTr = hit.transform.GetComponentInChildren<GetHeadPosition>().tr;
                leftHandTr = hit.transform.GetComponentInChildren<GetLeftHandPosition>().tr;
@@ -72,18 +66,25 @@ public class TargetSelect : MonoBehaviour
                rightFootTr = hit.transform.GetComponentInChildren<GetRightFootPosition>().tr;
 
                if (isTargetingFollow != null) StopCoroutine(isTargetingFollow);
-               isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, _material, InsfabtargetImage, headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));               
+               isTargetingFollow = StartCoroutine(TargetingFollow(hit.transform, targetImage, headTr, leftHandTr, rightHandTr, leftFootTr, rightFootTr));               
             }
         }
     }
 
-    IEnumerator TargetingFollow(Transform target, Material[] _material, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
+    IEnumerator TargetingFollow(Transform target, List<Image> images, Transform headTr, Transform leftHandTr, Transform rightHandTr, Transform leftFootTr, Transform rightFootTr)
     {
 
-        Vector3 setHpPos = Vector3.zero;
-        Slider hpBar = Instantiate(targetHpBarPrefab);
-        hpBar.transform.SetParent(HpbarParent);
-        float targetingMaxDistance =  5.0f;
+        Vector3 setPos = Vector3.zero;
+        target.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 1.0f);
+        target.GetComponent<MonsterState>().InstantiateHPbar();
+        hpbar = target.GetComponent<MonsterState>().myhpbar;
+        targetUIGroup.SetActive(true);
+        MonsterData targetData = target.GetComponent<MonsterData>();
+        hpbar.maxValue = targetData.GetMaxHp;
+        hpbar.value = targetData.GetCurHp;
+        nameText.text = targetData.GetName;
+
+        float targetingMaxDistance =  70.0f;
         float targetDistance = 0.0f;
 
         List<float> screenPosX = new List<float>();
@@ -106,27 +107,21 @@ public class TargetSelect : MonoBehaviour
         float getMaxX;
         float getMaxY;
 
-        float preMinX = 0.0f;
-        float preMinY = 0.0f;
-        float preMaxX = 0.0f;
-        float preMaxY= 0.0f;
 
         float outRange = 15.0f;
 
 
         while (target != null && GetIsSelect)
         {
+            hpbar.value = targetData.GetCurHp;
             float dist = (transform.position - target.position).magnitude;
 
             if (dist >= outRange)
             {
                 GetIsSelect = false;
-                _material[1].SetFloat("Boolean_AB71AB7D", 0.0f);
-                foreach (Image image in InsfabtargetImage)
-                {
-                    Destroy(image.gameObject);
-                }
-                InsfabtargetImage.Clear();
+                target.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 0.0f);
+                Destroy(hpbar.gameObject);
+                targetUIGroup.SetActive(false);
             }
             else
             {
@@ -177,24 +172,15 @@ public class TargetSelect : MonoBehaviour
                 getMaxX = screenPosX[4];
                 getMaxY = screenPosY[4];
 
-                //preMinX
-                //preMinY
-                //preMaxX
-                //preMaxY
-
                 targetDistance = Mathf.Abs(screenPosX[4] - screenPosX[0]);
 
                 if (targetDistance < targetingMaxDistance)
                 {
-                    if(true)
-                    {
-
-
-                    }
-                    images[0].transform.localPosition = new Vector3(getMinX, getMaxY, 0);
-                    images[1].transform.localPosition = new Vector3(getMaxX, getMaxY, 0);
-                    images[2].transform.localPosition = new Vector3(getMaxX, getMinY, 0);
-                    images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
+                    images[0].transform.localPosition = new Vector3(getMinX - 20.0f, getMaxY, 0);
+                    images[1].transform.localPosition = new Vector3(getMaxX + 20.0f, getMaxY, 0);
+                    images[2].transform.localPosition = new Vector3(getMaxX + 20.0f, getMinY, 0);
+                    images[3].transform.localPosition = new Vector3(getMinX - 20.0f, getMinY, 0);
+ 
                 }
                 else
                 {
@@ -204,11 +190,17 @@ public class TargetSelect : MonoBehaviour
                     images[3].transform.localPosition = new Vector3(getMinX, getMinY, 0);
                 }
 
-                setHpPos.x = Mathf.Lerp(getMinX, getMaxX, 0.5f);
-                setHpPos.y = getMaxY;
-                hpBar.GetComponent<MonsterHp>().SetHpPos(setHpPos);
+                setPos.x = Mathf.Lerp(getMinX, getMaxX, 0.5f);
+                setPos.y = getMaxY+10.0f;
+                hpbar.transform.localPosition = setPos;
+                setPos.y += 30.0f;
+                nameText.transform.localPosition = setPos;
             }
             yield return null;
         }
+
+        GetIsSelect = false;
+        targetUIGroup.SetActive(false);
+        Destroy(hpbar.gameObject);
     }
 }

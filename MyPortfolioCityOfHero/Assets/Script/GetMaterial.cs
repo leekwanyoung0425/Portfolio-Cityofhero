@@ -12,7 +12,7 @@ public class GetMaterial : MonoBehaviour
         {
             if(_myMaterial == null)
             {
-                _myMaterial = transform.GetComponent<SkinnedMeshRenderer>().materials;
+                _myMaterial = transform.GetComponent<Renderer>().materials;
             }
 
             return _myMaterial;
