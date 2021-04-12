@@ -261,11 +261,10 @@ public class PlayerAttack : MonoBehaviour
     void EnemyDamage()
     {
         Collider[] colls = Physics.OverlapSphere(this.transform.parent.position, 5.0f, monster);
-        foreach(Collider monster in colls)
+
+        foreach (Collider monster in colls)
         {
-
           monster.transform.GetComponent<MonsterState>().Damage(bombDamage);
-
         }
     }
 

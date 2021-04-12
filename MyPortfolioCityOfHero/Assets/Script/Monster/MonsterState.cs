@@ -24,13 +24,23 @@ public class MonsterState : MonoBehaviour
     public GameObject damageTextParent;
     GameObject damageTexObj;
 
+    public Transform damageTextPos;
+
     public Animator myAnim;
+    public Canvas canvas;
+
+    Vector3 halfsize = Vector3.zero;
+
+    bool isAttacking = false;
+    bool isTracing = false;
 
 
-
+    public LayerMask targetMask;
     // Start is called before the first frame update
     void Start()
     {
+        halfsize.x = canvas.pixelRect.width / 2.0f;
+        halfsize.y = canvas.pixelRect.height / 2.0f;
     }
 
     // Update is called once per frame
@@ -81,7 +91,7 @@ public class MonsterState : MonoBehaviour
     public void Damage(float damage)
     {
         mydata.GetCurHp -= damage;
-        InstantiateDamageText(damage);
+        StartCoroutine(InstantiateDamageText(damage, damageTextPos));
     }
 
 
@@ -100,16 +110,22 @@ public class MonsterState : MonoBehaviour
         myhpbar = hpbarObj.GetComponent<Slider>();
     }
 
-    void InstantiateDamageText(float damage)
+
+    IEnumerator InstantiateDamageText(float damage, Transform target)
     {
-        float speed = 1.0f;
+        Vector3 pos = Camera.main.WorldToScreenPoint(target.position + Vector3.up *0.8f) ;
+        pos.x -= halfsize.x;
+        pos.y -= halfsize.y;
+        float speed = 5.0f;
         damageTexObj = Instantiate(damageTextPrefab);
         damageTexObj.transform.SetParent(damageTextParent.transform);
-        TMP_Text damagetext = damageTexObj.transform.GetComponent<TextMeshPro>();
+        damageTexObj.transform.localPosition = pos;
+        TMP_Text damagetext = damageTexObj.transform.GetComponent<TextMeshProUGUI>();
+        damagetext.text = damage.ToString();
 
         bool stop = false;
 
-        while(!stop)
+        while (!stop)
         {
             damageTexObj.transform.Translate(Vector3.up * speed * Time.smoothDeltaTime);
             Color col = damagetext.color;
@@ -121,7 +137,23 @@ public class MonsterState : MonoBehaviour
                 Destroy(damagetext.gameObject);
                 stop = true;
             }
+            yield return null;
         }
+    }
 
+    IEnumerator PlayerSearch()
+    {
+            
+        while(mystate != STATE.DIE && !isAttacking && !isTracing)
+        {
+            Collider[] colls = Physics.OverlapSphere(this.transform.position, 5.0f, targetMask);
+
+            foreach(Collider player in colls)
+            {
+                
+            }
+
+            yield return null;
+        }
     }
 }
