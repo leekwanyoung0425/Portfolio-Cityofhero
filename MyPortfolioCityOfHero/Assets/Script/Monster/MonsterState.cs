@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.AI;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.AI;
+
 
 public class MonsterState : MonoBehaviour
 {
@@ -33,9 +34,17 @@ public class MonsterState : MonoBehaviour
 
     bool isAttacking = false;
     bool isTracing = false;
-
+    public bool isAttacked = false;
 
     public LayerMask targetMask;
+
+    float enemySearchDist = 10.0f;
+
+    Transform attackedTarget;
+
+    public NavMeshAgent myAgent;
+    Coroutine changeweight = null;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -76,22 +85,30 @@ public class MonsterState : MonoBehaviour
         {
             case STATE.IDLE:
                 HPCheck();
+                if (isAttacked && attackedTarget != null)
+                    AttackedCheck();
                 break;
             case STATE.TRACE:
                 HPCheck();
+                if (isAttacked && attackedTarget != null)
+                    AttackedCheck();
                 break;
             case STATE.ATTACK:
                 HPCheck();
+                if (isAttacked && attackedTarget != null)
+                    AttackedCheck();
                 break;
             case STATE.DIE:
                 break;
         }
     }
 
-    public void Damage(float damage)
+    public void Damage(float damage, Transform target)
     {
         mydata.GetCurHp -= damage;
         StartCoroutine(InstantiateDamageText(damage, damageTextPos));
+        isAttacked = true;
+        attackedTarget = target;
     }
 
 
@@ -141,19 +158,77 @@ public class MonsterState : MonoBehaviour
         }
     }
 
+    void AttackedCheck()
+    {
+        float curSpeed = 0.0f;
+        float maxSpeed = 2.0f; 
+
+        while(curSpeed < maxSpeed)
+        {
+            curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
+            myAnim.SetFloat("Speed", curSpeed / maxSpeed);
+        }
+        myAgent.SetDestination(attackedTarget.position);
+        if(myAgent.remainingDistance <= myAgent.stoppingDistance)
+        {
+            StateChange(STATE.ATTACK);
+            if (changeweight != null) StopCoroutine(changeweight);
+            changeweight = StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
+        }
+        
+    }
+
+    IEnumerator ChangeLayerWeight(int layer, float target, float t)
+    {
+        float speed = t > Mathf.Epsilon ? 1.0f / t : 1f;
+        float curweight = myAnim.GetLayerWeight(layer);
+        float dir = target - curweight > 0f ? 1f : -1f;
+        float value = Mathf.Abs(target - curweight);
+
+        while (curweight < target - Mathf.Epsilon || curweight > target + Mathf.Epsilon)
+        {
+            float delta = Time.deltaTime * speed;
+            if (value - delta <= Mathf.Epsilon)
+            {
+                delta = value;
+            }
+            value -= delta;
+
+            curweight += dir * delta;
+            myAnim.SetLayerWeight(layer, curweight);
+            yield return null;
+        }
+    }
+
     IEnumerator PlayerSearch()
     {
-            
-        while(mystate != STATE.DIE && !isAttacking && !isTracing)
+        Vector3 dir = Vector3.zero;
+        float dist;
+        float minDist = 10.0f;
+        Transform target = null;
+
+        while(!isTracing)
         {
-            Collider[] colls = Physics.OverlapSphere(this.transform.position, 5.0f, targetMask);
+            Collider[] colls = Physics.OverlapSphere(this.transform.position, enemySearchDist, targetMask);
 
             foreach(Collider player in colls)
             {
-                
-            }
+                dist = (player.gameObject.transform.position - transform.position).magnitude;
 
+                if(dist <= minDist)
+                {
+                    minDist = dist;
+                    target = player.gameObject.transform;
+                }
+            }
             yield return null;
+
+            dir = (target.position - transform.position).normalized;
         }
+    }
+
+    void TargetTracing(Transform target, Vector3 dir)
+    {
+
     }
 }

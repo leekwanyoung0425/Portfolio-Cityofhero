@@ -23,7 +23,7 @@ public class PlayerControl : CharacterMovement
     public bool IsDead = false;
     public bool isShortAttackPossible = false;
     public bool isLongAttackPossible = false;
-    public float shortAttackDist = 3.0f;
+    public float shortAttackDist = 1.5f;
     public float longAttackDist = 15.0f;
 
     public bool GetIsAttacking { get; set; }

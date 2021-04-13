@@ -188,13 +188,13 @@ public class PlayerAttack : MonoBehaviour
         switch (myState)
         {
             case STATE.NormalPunch:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(punchDamage);
+                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(punchDamage,transform.parent);
                 break;
             case STATE.SkillKick:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(kickDamage);
+                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(kickDamage, transform.parent);
                 break;
             case STATE.SkillMagicFire:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(magicFireDamage);
+                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(magicFireDamage, transform.parent);
                 break;
             case STATE.SkillBomb:
                 break;
@@ -264,7 +264,7 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (Collider monster in colls)
         {
-          monster.transform.GetComponent<MonsterState>().Damage(bombDamage);
+          monster.transform.GetComponent<MonsterState>().Damage(bombDamage, transform.parent);
         }
     }
 
