@@ -50,10 +50,12 @@ public class MonsterState : MonoBehaviour
     float attackDist = 1.5f;
     float moveSpeed = 0.0f;
 
-    public Transform curAttackTarget = null;
+    public static Transform curAttackTarget = null;
 
     float curSpeed = 0.0f;
     float maxSpeed = 1.0f;
+
+    bool rotend = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -207,6 +209,7 @@ public class MonsterState : MonoBehaviour
             myAnim.SetLayerWeight(layer, curweight);
             yield return null;
         }
+
     }
 
     IEnumerator PlayerSearch()
@@ -248,7 +251,7 @@ public class MonsterState : MonoBehaviour
         }
 
        
-        if (myAgent.remainingDistance <= Mathf.Epsilon)
+        if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
             StateChange(STATE.ATTACK);
         }
@@ -266,6 +269,7 @@ public class MonsterState : MonoBehaviour
         
         curAttackTarget = target;
 
+        
         if (moveSpeed < maxSpeed)
         {
             curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
@@ -318,22 +322,24 @@ public class MonsterState : MonoBehaviour
         }
     }
 
+   
     void Attack()
     {
-        //float rotSpeed = 5.0f;
-        //float rotdir = 1.0f;
-        //float delta = 0.0f;
+        float rotSpeed = 10.0f;
+        float rotdir = 1.0f;
+        float delta = 0.0f;
         Vector3 dir = (curAttackTarget.position - this.transform.position).normalized;
         float dist = Vector3.Distance(curAttackTarget.position, this.transform.position);
 
-        //if (Vector3.Dot(this.transform.right, dir) < 0.0f)
-        //{
-        //    rotdir = -1.0f;
-        //}
+        if (Vector3.Dot(this.transform.right, dir) < 0.0f)
+        {
+            rotdir = -1.0f;
+        }
 
         float rot = Vector3.Dot(dir, this.transform.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;
+
 
         if (dist > attackDist)
         {
@@ -355,21 +361,24 @@ public class MonsterState : MonoBehaviour
         {
             //Debug.Log("현재 각도" + rot);
             //this.transform.Rotate(this.transform.up * rot * rotdir);
-            this.transform.rotation = Quaternion.LookRotation(dir);
-            /*
-            while (rot > Mathf.Epsilon)
+            //this.transform.rotation = Quaternion.LookRotation(dir);
+
+            if (rot > Mathf.Epsilon)
             {
                 delta = rotSpeed * Time.smoothDeltaTime;
 
                 if (rot - delta <= Mathf.Epsilon)
                 {
+                    //Debug.Log("더이상들어오면안돼");
                     delta = rot;
                 }
                 rot -= delta;
-                Debug.Log("현재 각도" + rot);
+                //Debug.Log("내 현재 포워드" + (this.transform.forward)*(((transform.position.x)*(transform.position.x))+ ((transform.position.y) * (transform.position.y))+ ((transform.position.z) * (transform.position.z))));
+               // Debug.Log("플레이어 포워드" + (curAttackTarget.forward) * (((curAttackTarget.position.x) * (curAttackTarget.position.x)) + ((curAttackTarget.position.y) * (curAttackTarget.position.y)) + ((curAttackTarget.position.z) * (curAttackTarget.position.z))));
+
                 this.transform.Rotate(this.transform.up * delta * rotdir);
             }
-            */
+
         }
     }
 
