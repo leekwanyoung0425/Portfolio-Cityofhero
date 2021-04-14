@@ -43,7 +43,6 @@ public class MonsterState : MonoBehaviour
     Coroutine changeweight = null;
     Coroutine Search = null;
 
-    bool isAttacking = false;
     bool isAttacked = false;
     bool goback = false;
 
@@ -52,6 +51,9 @@ public class MonsterState : MonoBehaviour
     float moveSpeed = 0.0f;
 
     public Transform curAttackTarget = null;
+
+    float curSpeed = 0.0f;
+    float maxSpeed = 1.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -62,7 +64,7 @@ public class MonsterState : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StateProcess();
+        StateProcess();       
     }
 
     void StateChange(STATE s)
@@ -77,19 +79,18 @@ public class MonsterState : MonoBehaviour
                 StartCoroutine(PlayerSearch());
                 break;
             case STATE.SEARCHTRACE:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
+                myAgent.SetDestination(findTarget.position);
                 break;
             case STATE.ATTACKEDTRACE:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
+                myAgent.SetDestination(attackedTarget.position);
                 break;
             case STATE.ATTACK:
                 if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1,1.0f,0.5f));
-                isAttacking = true;
+                StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
                 break;
             case STATE.GOBACK:
+                if (changeweight != null) StopCoroutine(changeweight);
+                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 GoBack();
                 break;
             case STATE.DIE:
@@ -116,6 +117,7 @@ public class MonsterState : MonoBehaviour
                 AttackedTracing(attackedTarget);
                 break;
             case STATE.GOBACK:
+                GoBackEnd();
                 break;
             case STATE.ATTACK:
                 HPCheck();
@@ -185,8 +187,6 @@ public class MonsterState : MonoBehaviour
         }
     }
 
-
-
     IEnumerator ChangeLayerWeight(int layer, float target, float t)
     {
         float speed = t > Mathf.Epsilon ? 1.0f / t : 1f;
@@ -239,18 +239,15 @@ public class MonsterState : MonoBehaviour
     {
 
         curAttackTarget = target;
-        float curSpeed = 0.0f;
-        float maxSpeed = 2.0f;
 
-        while (curSpeed < maxSpeed)
+        if (moveSpeed < maxSpeed)
         {
             curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
+            moveSpeed = curSpeed;
             myAnim.SetFloat("Speed", curSpeed / maxSpeed);
         }
 
-        moveSpeed = curSpeed;
-        myAgent.SetDestination(findTarget.position);
-
+       
         if (myAgent.remainingDistance <= Mathf.Epsilon)
         {
             StateChange(STATE.ATTACK);
@@ -263,26 +260,19 @@ public class MonsterState : MonoBehaviour
         }
     }
 
+
     void AttackedTracing(Transform target)
     {
         
         curAttackTarget = target;
 
-        if (moveSpeed <= Mathf.Epsilon)
+        if (moveSpeed < maxSpeed)
         {
-            float curSpeed = 0.0f;
-            float maxSpeed = 2.0f;
-
-            while (curSpeed < maxSpeed)
-            {
-                curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
-                myAnim.SetFloat("Speed", curSpeed / maxSpeed);
-            }
-
+            curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
             moveSpeed = curSpeed;
+            myAnim.SetFloat("Speed", curSpeed / maxSpeed);
         }
-
-        myAgent.SetDestination(target.position);
+       
 
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
@@ -305,29 +295,45 @@ public class MonsterState : MonoBehaviour
         findTarget = null;
         attackedTarget = null;
         isAttacked = false;
-        isAttacking = false;
         Vector3 gobackPosition = mydata.GetPos;
         myAgent.SetDestination(gobackPosition);
-        if(myAgent.remainingDistance <= Mathf.Epsilon)
+
+    }
+
+    void GoBackEnd()
+    {
+        if (myAgent.remainingDistance <= Mathf.Epsilon)
         {
-            goback = false;
-            StateChange(STATE.IDLE);
+            if (moveSpeed > Mathf.Epsilon)
+            {
+                curSpeed = Mathf.Clamp(curSpeed - Time.deltaTime, 0.0f, maxSpeed);
+                moveSpeed = curSpeed;
+                myAnim.SetFloat("Speed", curSpeed / maxSpeed);
+            }
+            else
+            {
+                goback = false;
+                StateChange(STATE.IDLE);
+            }
         }
     }
 
     void Attack()
     {
-
-        float rotSpeed = 5.0f;
-        float rotdir = 1.0f;
-        float delta = 0.0f;
+        //float rotSpeed = 5.0f;
+        //float rotdir = 1.0f;
+        //float delta = 0.0f;
         Vector3 dir = (curAttackTarget.position - this.transform.position).normalized;
         float dist = Vector3.Distance(curAttackTarget.position, this.transform.position);
 
-        if (Vector3.Dot(this.transform.right, dir) < 0.0f)
-        {
-            rotdir = -1.0f;
-        }
+        //if (Vector3.Dot(this.transform.right, dir) < 0.0f)
+        //{
+        //    rotdir = -1.0f;
+        //}
+
+        float rot = Vector3.Dot(dir, this.transform.forward);
+        rot = Mathf.Acos(rot);
+        rot = (rot * 180.0f) / Mathf.PI;
 
         if (dist > attackDist)
         {
@@ -347,10 +353,10 @@ public class MonsterState : MonoBehaviour
         }
         else
         {
-            float rot = Vector3.Dot(dir, this.transform.forward);
-            rot = Mathf.Acos(rot);
-            rot = (rot * 180.0f) / Mathf.PI;
-
+            //Debug.Log("현재 각도" + rot);
+            //this.transform.Rotate(this.transform.up * rot * rotdir);
+            this.transform.rotation = Quaternion.LookRotation(dir);
+            /*
             while (rot > Mathf.Epsilon)
             {
                 delta = rotSpeed * Time.smoothDeltaTime;
@@ -363,6 +369,7 @@ public class MonsterState : MonoBehaviour
                 Debug.Log("현재 각도" + rot);
                 this.transform.Rotate(this.transform.up * delta * rotdir);
             }
+            */
         }
     }
 
