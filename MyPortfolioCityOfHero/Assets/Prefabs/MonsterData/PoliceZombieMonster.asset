@@ -16,4 +16,4 @@ MonoBehaviour:
   MonsterName: "\uAC10\uC5FC\uB41C \uACBD\uCC30\uAD00"
   HP: 100
   AttackPower: 5
-  BaseRespawnPos: {x: 0, y: 0, z: 0}
+  BaseRespawnPos: {x: 5, y: 0, z: 11.5}

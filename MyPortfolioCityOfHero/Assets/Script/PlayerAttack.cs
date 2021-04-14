@@ -165,7 +165,7 @@ public class PlayerAttack : MonoBehaviour
             yield return null;
         }
         cameramove.TurnRight = this.transform.parent.localRotation.eulerAngles;
-
+        
 
         switch (myState)
         {
@@ -176,6 +176,7 @@ public class PlayerAttack : MonoBehaviour
                 SkillKickInit();
                 break;
             case STATE.SkillMagicFire:
+               
                 SkillMagicFireInit();
                 break;
             case STATE.SkillBomb:
@@ -230,6 +231,7 @@ public class PlayerAttack : MonoBehaviour
     {
         if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Skill_MagicFire"))
         {
+            
             magicFireLeftEffect = Instantiate(magicFireEffectBallPrefab, magicFireLeftPos.position, magicFireLeftPos.rotation);
             magicFireRightEffect = Instantiate(magicFireEffectBallPrefab, magicFireRightPos.position, magicFireRightPos.rotation);
             magicFireLeftEffect.transform.SetParent(magicFireLeftPos);

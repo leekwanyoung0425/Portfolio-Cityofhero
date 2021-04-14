@@ -10,16 +10,10 @@ public class MonsterState : MonoBehaviour
 {
     public enum STATE
     {
-        IDLE, TRACE, ATTACK,GOBACK, DIE
-    }
-
-    public enum SUBSTATE
-    {
-        NOTHING, SEARCHTRACE, ATTACKEDTRACE
+        IDLE, SEARCHTRACE, ATTACKEDTRACE, ATTACK,GOBACK, DIE
     }
 
     public STATE mystate = STATE.IDLE;
-    public SUBSTATE mysubstate = SUBSTATE.NOTHING;
 
     public MonsterData mydata;
     public GameObject hpbarPrefab;
@@ -57,7 +51,7 @@ public class MonsterState : MonoBehaviour
     float attackDist = 1.5f;
     float moveSpeed = 0.0f;
 
-    Transform curAttackTarget = null;
+    public Transform curAttackTarget = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -73,17 +67,22 @@ public class MonsterState : MonoBehaviour
 
     void StateChange(STATE s)
     {
-        //추적스테이트일때는 다시 들어오게끔
         if (mystate == s) return;
         mystate = s;
-
+        
         switch (mystate)
         {
             case STATE.IDLE:
                 if (Search != null) StopCoroutine(Search);
                 StartCoroutine(PlayerSearch());
                 break;
-            case STATE.TRACE:
+            case STATE.SEARCHTRACE:
+                if (changeweight != null) StopCoroutine(changeweight);
+                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
+                break;
+            case STATE.ATTACKEDTRACE:
+                if (changeweight != null) StopCoroutine(changeweight);
+                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 break;
             case STATE.ATTACK:
                 if (changeweight != null) StopCoroutine(changeweight);
@@ -108,22 +107,19 @@ public class MonsterState : MonoBehaviour
             case STATE.IDLE:
                 HPCheck();
                 break;
-            case STATE.TRACE:
+            case STATE.SEARCHTRACE:
                 HPCheck();
-                switch (mysubstate)
-                {
-                    case SUBSTATE.SEARCHTRACE:
-                        SearchTracing(findTarget);
-                        break;
-                    case SUBSTATE.ATTACKEDTRACE:
-                        AttackedTracing(attackedTarget);
-                        break;
-                }
+                SearchTracing(findTarget);
+                break;
+            case STATE.ATTACKEDTRACE:
+                HPCheck();
+                AttackedTracing(attackedTarget);
                 break;
             case STATE.GOBACK:
                 break;
             case STATE.ATTACK:
                 HPCheck();
+                Attack();
                 break;
             case STATE.DIE:
                 break;
@@ -134,12 +130,11 @@ public class MonsterState : MonoBehaviour
     {
         mydata.GetCurHp -= damage;
         StartCoroutine(InstantiateDamageText(damage, damageTextPos));
-        mysubstate = SUBSTATE.ATTACKEDTRACE;
         attackedTarget = target;
         if(!isAttacked && !goback)
         {
             isAttacked = true;
-            StateChange(STATE.TRACE);
+            StateChange(STATE.ATTACKEDTRACE);
         }
     }
 
@@ -217,7 +212,6 @@ public class MonsterState : MonoBehaviour
     IEnumerator PlayerSearch()
     {
         float dist;
-        float minDist = 10.0f;
 
         while(mystate == STATE.IDLE)
         {
@@ -227,16 +221,15 @@ public class MonsterState : MonoBehaviour
             {
                 dist = (player.gameObject.transform.position - transform.position).magnitude;
 
-                if(dist <= minDist)
+                if(dist <= enemySearchDist)
                 {
-                    minDist = dist;
+                    enemySearchDist = dist;
                     findTarget = player.gameObject.transform;
                 }
             }
             if(findTarget != null)
             {               
-                StateChange(STATE.TRACE);
-                mysubstate = SUBSTATE.SEARCHTRACE;
+                StateChange(STATE.SEARCHTRACE);                
             }
             yield return null;
         }
@@ -290,11 +283,9 @@ public class MonsterState : MonoBehaviour
         }
 
         myAgent.SetDestination(target.position);
-        Debug.Log("공격한 플레이어 추적중");
 
-        if (myAgent.remainingDistance <= Mathf.Epsilon)
+        if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
-            Debug.Log("공격한 플레이어에게 도착 공격시작");
             StateChange(STATE.ATTACK);
         }
 
@@ -302,7 +293,6 @@ public class MonsterState : MonoBehaviour
         
         if (dist > enemySearchDist)
         {
-            Debug.Log("공격한 플레이어와 거리가 멀어졌다");
             StateChange(STATE.GOBACK);
         }
         
@@ -328,6 +318,52 @@ public class MonsterState : MonoBehaviour
     void Attack()
     {
 
+        float rotSpeed = 5.0f;
+        float rotdir = 1.0f;
+        float delta = 0.0f;
+        Vector3 dir = (curAttackTarget.position - this.transform.position).normalized;
+        float dist = Vector3.Distance(curAttackTarget.position, this.transform.position);
+
+        if (Vector3.Dot(this.transform.right, dir) < 0.0f)
+        {
+            rotdir = -1.0f;
+        }
+
+        if (dist > attackDist)
+        {
+            if(isAttacked)
+            {
+                StateChange(STATE.ATTACKEDTRACE);
+            }
+            else
+            {
+                StateChange(STATE.SEARCHTRACE);
+            }
+        }
+        else if (dist > enemySearchDist)
+        {
+            curAttackTarget = null;
+            StateChange(STATE.GOBACK);
+        }
+        else
+        {
+            float rot = Vector3.Dot(dir, this.transform.forward);
+            rot = Mathf.Acos(rot);
+            rot = (rot * 180.0f) / Mathf.PI;
+
+            while (rot > Mathf.Epsilon)
+            {
+                delta = rotSpeed * Time.smoothDeltaTime;
+
+                if (rot - delta <= Mathf.Epsilon)
+                {
+                    delta = rot;
+                }
+                rot -= delta;
+                Debug.Log("현재 각도" + rot);
+                this.transform.Rotate(this.transform.up * delta * rotdir);
+            }
+        }
     }
 
 }

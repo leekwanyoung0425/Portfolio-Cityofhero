@@ -122,6 +122,7 @@ public class TargetSelect : MonoBehaviour
                 target.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 0.0f);
                 Destroy(hpbar.gameObject);
                 targetUIGroup.SetActive(false);
+                target = null;
             }
             else
             {
@@ -198,9 +199,5 @@ public class TargetSelect : MonoBehaviour
             }
             yield return null;
         }
-
-        GetIsSelect = false;
-        targetUIGroup.SetActive(false);
-        Destroy(hpbar.gameObject);
     }
 }
