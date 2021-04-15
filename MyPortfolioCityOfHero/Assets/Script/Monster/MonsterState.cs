@@ -56,11 +56,13 @@ public class MonsterState : MonoBehaviour
     float maxSpeed = 1.0f;
 
     bool rotend = false;
+    AnimatorClipInfo[] myAnimClip;
     // Start is called before the first frame update
     void Start()
     {
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
+        
     }
 
     // Update is called once per frame
@@ -81,22 +83,15 @@ public class MonsterState : MonoBehaviour
                 StartCoroutine(PlayerSearch());
                 break;
             case STATE.SEARCHTRACE:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 myAgent.SetDestination(findTarget.position);
                 break;
             case STATE.ATTACKEDTRACE:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 myAgent.SetDestination(attackedTarget.position);
                 break;
             case STATE.ATTACK:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
+                myAnim.SetBool("Attack", true);
                 break;
             case STATE.GOBACK:
-                if (changeweight != null) StopCoroutine(changeweight);
-                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 GoBack();
                 break;
             case STATE.DIE:
@@ -213,9 +208,7 @@ public class MonsterState : MonoBehaviour
             myAnim.SetLayerWeight(layer, curweight);
             Debug.Log(curweight);
             yield return null;
-            Debug.Log("공격웨이트 중");
         }
-        Debug.Log("공격웨이트 끝");
     }
 
     IEnumerator PlayerSearch()
@@ -285,6 +278,7 @@ public class MonsterState : MonoBehaviour
 
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
+            Debug.Log("들");
             StateChange(STATE.ATTACK);
         }
 
@@ -337,22 +331,26 @@ public class MonsterState : MonoBehaviour
         float rot = Vector3.Dot(dir, this.transform.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;
-
+        myAnimClip = myAnim.GetCurrentAnimatorClipInfo(0);
         if (dist > attackDist)
         {
-            if (isAttacked)
+            myAnim.SetBool("Attack", false);
+            
+            if (isAttacked && myAnimClip[0].clip.name == "OrcWalk")
             {
-                Debug.Log("추적모드");
+                
                 StateChange(STATE.ATTACKEDTRACE);
             }
-            else
+            else if(!isAttacked && myAnimClip[0].clip.name == "OrcWalk")
             {
                 StateChange(STATE.SEARCHTRACE);
             }
         }
         else if (dist > enemySearchDist)
         {
+           
             curAttackTarget = null;
+            myAnim.SetBool("Attack", false);
             StateChange(STATE.GOBACK);
         }
         else
