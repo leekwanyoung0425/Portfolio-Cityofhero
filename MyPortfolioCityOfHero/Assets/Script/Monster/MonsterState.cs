@@ -81,9 +81,13 @@ public class MonsterState : MonoBehaviour
                 StartCoroutine(PlayerSearch());
                 break;
             case STATE.SEARCHTRACE:
+                if (changeweight != null) StopCoroutine(changeweight);
+                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 myAgent.SetDestination(findTarget.position);
                 break;
             case STATE.ATTACKEDTRACE:
+                if (changeweight != null) StopCoroutine(changeweight);
+                StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
                 myAgent.SetDestination(attackedTarget.position);
                 break;
             case STATE.ATTACK:
@@ -207,9 +211,11 @@ public class MonsterState : MonoBehaviour
 
             curweight += dir * delta;
             myAnim.SetLayerWeight(layer, curweight);
+            Debug.Log(curweight);
             yield return null;
+            Debug.Log("공격웨이트 중");
         }
-
+        Debug.Log("공격웨이트 끝");
     }
 
     IEnumerator PlayerSearch()
@@ -266,10 +272,9 @@ public class MonsterState : MonoBehaviour
 
     void AttackedTracing(Transform target)
     {
-        
+     
         curAttackTarget = target;
-
-        
+    
         if (moveSpeed < maxSpeed)
         {
             curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
@@ -322,29 +327,22 @@ public class MonsterState : MonoBehaviour
         }
     }
 
-   
+
     void Attack()
     {
-        float rotSpeed = 10.0f;
-        float rotdir = 1.0f;
-        float delta = 0.0f;
-        Vector3 dir = (curAttackTarget.position - this.transform.position).normalized;
+        Vector3 dir = curAttackTarget.position - this.transform.position;
+        dir.Normalize();
         float dist = Vector3.Distance(curAttackTarget.position, this.transform.position);
-
-        if (Vector3.Dot(this.transform.right, dir) < 0.0f)
-        {
-            rotdir = -1.0f;
-        }
 
         float rot = Vector3.Dot(dir, this.transform.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;
 
-
         if (dist > attackDist)
         {
-            if(isAttacked)
+            if (isAttacked)
             {
+                Debug.Log("추적모드");
                 StateChange(STATE.ATTACKEDTRACE);
             }
             else
@@ -359,27 +357,7 @@ public class MonsterState : MonoBehaviour
         }
         else
         {
-            //Debug.Log("현재 각도" + rot);
-            //this.transform.Rotate(this.transform.up * rot * rotdir);
-            //this.transform.rotation = Quaternion.LookRotation(dir);
-
-            if (rot > Mathf.Epsilon)
-            {
-                delta = rotSpeed * Time.smoothDeltaTime;
-
-                if (rot - delta <= Mathf.Epsilon)
-                {
-                    //Debug.Log("더이상들어오면안돼");
-                    delta = rot;
-                }
-                rot -= delta;
-                //Debug.Log("내 현재 포워드" + (this.transform.forward)*(((transform.position.x)*(transform.position.x))+ ((transform.position.y) * (transform.position.y))+ ((transform.position.z) * (transform.position.z))));
-               // Debug.Log("플레이어 포워드" + (curAttackTarget.forward) * (((curAttackTarget.position.x) * (curAttackTarget.position.x)) + ((curAttackTarget.position.y) * (curAttackTarget.position.y)) + ((curAttackTarget.position.z) * (curAttackTarget.position.z))));
-
-                this.transform.Rotate(this.transform.up * delta * rotdir);
-            }
-
+            transform.rotation = Quaternion.LookRotation(dir);
         }
     }
-
 }
