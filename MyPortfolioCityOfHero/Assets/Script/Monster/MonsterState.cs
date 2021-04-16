@@ -10,10 +10,10 @@ public class MonsterState : MonoBehaviour
 {
     public enum STATE
     {
-        IDLE, SEARCHTRACE, ATTACKEDTRACE, ATTACK,GOBACK, DIE
+        CREATE, IDLE, SEARCHTRACE, ATTACKEDTRACE, ATTACK,GOBACK, DIE
     }
 
-    public STATE mystate = STATE.IDLE;
+    public STATE mystate = STATE.CREATE;
 
     public MonsterData mydata;
     public GameObject hpbarPrefab;
@@ -40,7 +40,7 @@ public class MonsterState : MonoBehaviour
     Transform findTarget = null;
 
     public NavMeshAgent myAgent;
-    Coroutine changeweight = null;
+    Coroutine Destination = null;
     Coroutine Search = null;
 
     bool isAttacked = false;
@@ -57,12 +57,14 @@ public class MonsterState : MonoBehaviour
 
     bool rotend = false;
     AnimatorClipInfo[] myAnimClip;
+    
     // Start is called before the first frame update
     void Start()
     {
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
-        
+        StateChange(STATE.IDLE);
+
     }
 
     // Update is called once per frame
@@ -80,13 +82,17 @@ public class MonsterState : MonoBehaviour
         {
             case STATE.IDLE:
                 if (Search != null) StopCoroutine(Search);
-                StartCoroutine(PlayerSearch());
+                Search = StartCoroutine(PlayerSearch());
                 break;
             case STATE.SEARCHTRACE:
                 myAgent.SetDestination(findTarget.position);
+                if (Destination != null) StopCoroutine(Destination);
+                Destination = StartCoroutine(SetDestination(attackedTarget, findTarget));
                 break;
             case STATE.ATTACKEDTRACE:
                 myAgent.SetDestination(attackedTarget.position);
+                if (Destination != null) StopCoroutine(Destination);
+                Destination = StartCoroutine(SetDestination(attackedTarget, findTarget));
                 break;
             case STATE.ATTACK:
                 myAnim.SetBool("Attack", true);
@@ -278,7 +284,6 @@ public class MonsterState : MonoBehaviour
 
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
-            Debug.Log("들");
             StateChange(STATE.ATTACK);
         }
 
@@ -305,7 +310,7 @@ public class MonsterState : MonoBehaviour
 
     void GoBackEnd()
     {
-        if (myAgent.remainingDistance <= Mathf.Epsilon)
+        if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
             if (moveSpeed > Mathf.Epsilon)
             {
@@ -318,6 +323,19 @@ public class MonsterState : MonoBehaviour
                 goback = false;
                 StateChange(STATE.IDLE);
             }
+        }
+
+        if(mydata.GetCurHp < mydata.GetMaxHp)
+        {
+            float delta = 10.0f * Time.deltaTime;
+            if(mydata.GetCurHp + delta >= mydata.GetMaxHp)
+            {
+                mydata.GetCurHp = mydata.GetMaxHp;
+            }
+            else
+            {
+                mydata.GetCurHp += delta;
+            }           
         }
     }
 
@@ -338,7 +356,6 @@ public class MonsterState : MonoBehaviour
             
             if (isAttacked && myAnimClip[0].clip.name == "OrcWalk")
             {
-                
                 StateChange(STATE.ATTACKEDTRACE);
             }
             else if(!isAttacked && myAnimClip[0].clip.name == "OrcWalk")
@@ -356,6 +373,25 @@ public class MonsterState : MonoBehaviour
         else
         {
             transform.rotation = Quaternion.LookRotation(dir);
+        }
+    }
+
+    IEnumerator SetDestination(Transform attackedTarget, Transform serchTarget)
+    {
+
+        while(myAgent.remainingDistance > Mathf.Epsilon && !goback)
+        {
+            myAnimClip = myAnim.GetCurrentAnimatorClipInfo(0);
+            if (attackedTarget != null && myAnimClip[0].clip.name == "OrcWalk")
+            {
+                
+                myAgent.SetDestination(attackedTarget.position);
+            }
+            else if (serchTarget != null && myAnimClip[0].clip.name == "OrcWalk")
+            {
+                myAgent.SetDestination(serchTarget.position);
+            }
+            yield return new WaitForSeconds(1.0f);
         }
     }
 }
