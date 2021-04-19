@@ -34,7 +34,7 @@ public class MonsterState : MonoBehaviour
 
     public LayerMask targetMask;
 
-    float enemySearchDist = 5.0f;
+    float enemySearchDist = 15.0f;
 
     Transform attackedTarget = null;
     Transform findTarget = null;
@@ -59,6 +59,8 @@ public class MonsterState : MonoBehaviour
     AnimatorClipInfo[] myAnimClip;
 
     public float damage = 50.0f;
+
+    public bool isDead = false;
     
     // Start is called before the first frame update
     void Start()
@@ -102,9 +104,7 @@ public class MonsterState : MonoBehaviour
                 GoBack();
                 break;
             case STATE.DIE:
-                myAnim.SetTrigger("Die");
-                this.gameObject.layer = 10;
-                Destroy(this.gameObject, 5.0f);
+                MonsterDead();
                 break;
         }
     }
@@ -138,13 +138,16 @@ public class MonsterState : MonoBehaviour
 
     public void Damage(float damage, Transform target)
     {
-        mydata.GetCurHp -= damage;
-        StartCoroutine(InstantiateDamageText(damage, damageTextPos));
-        attackedTarget = target;
-        if(!isAttacked && !goback)
-        {
+        if(!isDead)
+        { 
+            mydata.GetCurHp -= damage;
+            StartCoroutine(InstantiateDamageText(damage, damageTextPos));
+            attackedTarget = target;
+            if(!isAttacked && !goback)
+            {
             isAttacked = true;
             StateChange(STATE.ATTACKEDTRACE);
+            }
         }
     }
 
@@ -213,7 +216,6 @@ public class MonsterState : MonoBehaviour
 
             curweight += dir * delta;
             myAnim.SetLayerWeight(layer, curweight);
-            Debug.Log(curweight);
             yield return null;
         }
     }
@@ -221,7 +223,7 @@ public class MonsterState : MonoBehaviour
     IEnumerator PlayerSearch()
     {
         float dist;
-        float radius = enemySearchDist;
+        float radius = enemySearchDist * 0.5f;
         while (mystate == STATE.IDLE)
         {
             Collider[] colls = Physics.OverlapSphere(this.transform.parent.position, radius, targetMask);
@@ -305,14 +307,17 @@ public class MonsterState : MonoBehaviour
         attackedTarget = null;
         isAttacked = false;
         Vector3 gobackPosition = mydata.GetPos;
-        Debug.Log(gobackPosition);
-        myAgent.SetDestination(new Vector3(5.0f,0.0f,11.5f));
+        myAgent.stoppingDistance = 0.0f;
+        myAgent.SetDestination(gobackPosition);
     }
 
     void GoBackEnd()
     {
+        Debug.Log(myAgent.remainingDistance);
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
+            Debug.Log(myAgent.stoppingDistance);
+            Debug.Log(myAgent.remainingDistance);
             if (moveSpeed > Mathf.Epsilon)
             {
                 curSpeed = Mathf.Clamp(curSpeed - Time.deltaTime, 0.0f, maxSpeed);
@@ -321,6 +326,7 @@ public class MonsterState : MonoBehaviour
             }
             else
             {
+                myAgent.stoppingDistance = 1.5f;
                 goback = false;
                 StateChange(STATE.IDLE);
             }
@@ -415,5 +421,13 @@ public class MonsterState : MonoBehaviour
         {
             curAttackTarget.GetComponent<PlayerData>().Damage(damage);
         }
+    }
+
+    public void MonsterDead()
+    {
+        myAnim.SetTrigger("Die");
+        isDead = true;
+        this.transform.parent.gameObject.layer = 10;
+        Destroy(this.transform.parent.gameObject, 5.0f);
     }
 }

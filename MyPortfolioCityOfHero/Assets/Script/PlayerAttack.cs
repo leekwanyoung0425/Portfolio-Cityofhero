@@ -55,12 +55,14 @@ public class PlayerAttack : MonoBehaviour
     Coroutine characterRotate = null;
 
     void Start()
-    {       
+    {
+       
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         StateProcess();
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
@@ -150,14 +152,14 @@ public class PlayerAttack : MonoBehaviour
             rotDirection = -1.0f;
         }
      
-        while (rot > Mathf.Epsilon && target != null)
+        while (rot > Mathf.Epsilon && target.gameObject != null)
         {
             delta = rotSpeed * Time.smoothDeltaTime;
             
             if(rot - delta <= Mathf.Epsilon)
             {
 
-                delta -= rot;
+                delta = rot;
          
             }
            rot -= delta;
@@ -167,7 +169,7 @@ public class PlayerAttack : MonoBehaviour
         }
         cameramove.TurnRight = myModel.localRotation.eulerAngles;
 
-
+        
         switch (myState)
         {
             case STATE.NormalPunch:

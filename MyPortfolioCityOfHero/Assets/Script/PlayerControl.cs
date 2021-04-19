@@ -133,9 +133,13 @@ public class PlayerControl : CharacterMovement
 
     void AttackCheck()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (targetSelect.GetselectTarget != null && isShortAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
+            if (targetSelect.GetselectTarget != null && 
+                isShortAttackPossible && !GetIsAttacking &&
+                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
+                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead)
             {
                 GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
@@ -148,7 +152,10 @@ public class PlayerControl : CharacterMovement
         }
         else if(Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (targetSelect.GetselectTarget != null && isShortAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
+            if (targetSelect.GetselectTarget != null &&
+                isShortAttackPossible && !GetIsAttacking &&
+                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
+                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead)
             {
                 ChangeState(STATE.ATTACK);
                 attackState.ChangeState(PlayerAttack.STATE.SkillKick);
@@ -160,7 +167,10 @@ public class PlayerControl : CharacterMovement
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (targetSelect.GetselectTarget != null && isLongAttackPossible && !GetIsAttacking && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster"))
+            if (targetSelect.GetselectTarget != null &&
+                isLongAttackPossible && !GetIsAttacking &&
+                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
+                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead)
             {
                 ChangeState(STATE.ATTACK);
                 attackState.ChangeState(PlayerAttack.STATE.SkillMagicFire);

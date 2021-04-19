@@ -112,8 +112,8 @@ public class TargetSelect : MonoBehaviour
         float outRange = 15.0f;
 
 
-        while (target != null && GetIsSelect)
-        {
+        while (target.gameObject != null && GetIsSelect)
+        {            
             hpbar.value = targetData.GetCurHp;
             float dist = (transform.position - target.position).magnitude;
 
@@ -200,6 +200,7 @@ public class TargetSelect : MonoBehaviour
             }
             yield return null;
         }
+        GetIsSelect = false;
         targetUIGroup.SetActive(false);
     }
 }
