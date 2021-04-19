@@ -48,7 +48,7 @@ public class TargetSelect : MonoBehaviour
                 if(prevSelectTarget != null && prevSelectTarget != hit.transform)
                 {
                     prevSelectTarget.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 0.0f);
-                    Destroy(prevSelectTarget.GetComponent<MonsterState>().hpbarObj);
+                    Destroy(prevSelectTarget.GetComponentInChildren<MonsterState>().hpbarObj);
                     prevSelectTarget = hit.transform;
                 }
                 else
@@ -76,13 +76,14 @@ public class TargetSelect : MonoBehaviour
 
         Vector3 setPos = Vector3.zero;
         target.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 1.0f);
-        target.GetComponent<MonsterState>().InstantiateHPbar();
-        hpbar = target.GetComponent<MonsterState>().myhpbar;
+        target.GetComponentInChildren<MonsterState>().InstantiateHPbar();
+        hpbar = target.GetComponentInChildren<MonsterState>().myhpbar;
         targetUIGroup.SetActive(true);
         MonsterData targetData = target.GetComponent<MonsterData>();
         hpbar.maxValue = targetData.GetMaxHp;
         hpbar.value = targetData.GetCurHp;
         nameText.text = targetData.GetName;
+        nameText.outlineColor = new Color(255,0,0);
 
         float targetingMaxDistance =  70.0f;
         float targetDistance = 0.0f;
@@ -199,5 +200,6 @@ public class TargetSelect : MonoBehaviour
             }
             yield return null;
         }
+        targetUIGroup.SetActive(false);
     }
 }

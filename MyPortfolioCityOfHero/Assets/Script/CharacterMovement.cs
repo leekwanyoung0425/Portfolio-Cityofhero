@@ -35,9 +35,9 @@ public class CharacterMovement : MonoBehaviour
     }
 
 
-    public float MaxSpeed = 2.0f;
+    public float MaxSpeed = 0.2f;
     public float rotSpeed = 360.0f;
-    public float JumpPower = 5.0f;
+    public float JumpPower = 0.5f;
 
 
     //Start is called before the first frame update

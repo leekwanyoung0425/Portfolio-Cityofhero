@@ -15,6 +15,7 @@ public class MonsterData : MonoBehaviour
     float MaxHp;
     float CurHp;
     Vector3 respawnPos;
+    Vector3 respawnDir;
 
     public string GetName { get { return MonsterName; } }
     public float GetMaxHp { get { return MaxHp; }}
@@ -28,6 +29,7 @@ public class MonsterData : MonoBehaviour
         MaxHp = _monsterData.HP;
         CurHp = _monsterData.HP;
         respawnPos = _monsterData.BaseRespawnPos;
+        respawnDir = transform.forward;
     }
 
     // Update is called once per frame

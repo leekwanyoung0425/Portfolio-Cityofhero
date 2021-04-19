@@ -12,6 +12,7 @@ public class PlayerControl : CharacterMovement
 
     public STATE myState = STATE.IDLE;
 
+    public Animator myAnim;
     BoxCollider _collider;
     float horizontal = 0.0f;
     float vertical = 0.0f;
@@ -71,6 +72,7 @@ public class PlayerControl : CharacterMovement
                 break;
             case STATE.DEAD:
                 IsDead = true;
+                myAnim.SetTrigger("Dead");
                 break;
             case STATE.FLY:
                 break;

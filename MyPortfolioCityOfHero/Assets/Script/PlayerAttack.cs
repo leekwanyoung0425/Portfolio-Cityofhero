@@ -139,9 +139,8 @@ public class PlayerAttack : MonoBehaviour
         float rotDirection = 1.0f;
         float delta = 0.0f;
 
-        Vector3 direction = target.position - this.transform.parent.position;
+        Vector3 direction = target.position - myModel.position;
         direction.Normalize();
-
         float rot = Vector3.Dot(direction, myModel.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;
@@ -150,22 +149,24 @@ public class PlayerAttack : MonoBehaviour
         {
             rotDirection = -1.0f;
         }
-
-        while(rot > Mathf.Epsilon && target != null)
+     
+        while (rot > Mathf.Epsilon && target != null)
         {
             delta = rotSpeed * Time.smoothDeltaTime;
             
             if(rot - delta <= Mathf.Epsilon)
             {
-                delta = rot;              
-            }
-            rot -= delta;
 
-            this.transform.parent.Rotate(this.transform.parent.up * delta * rotDirection);
+                delta -= rot;
+         
+            }
+           rot -= delta;
+           myModel.Rotate(myModel.transform.up * delta * rotDirection);
+
             yield return null;
         }
-        cameramove.TurnRight = this.transform.parent.localRotation.eulerAngles;
-        
+        cameramove.TurnRight = myModel.localRotation.eulerAngles;
+
 
         switch (myState)
         {
@@ -176,7 +177,6 @@ public class PlayerAttack : MonoBehaviour
                 SkillKickInit();
                 break;
             case STATE.SkillMagicFire:
-               
                 SkillMagicFireInit();
                 break;
             case STATE.SkillBomb:
@@ -189,13 +189,13 @@ public class PlayerAttack : MonoBehaviour
         switch (myState)
         {
             case STATE.NormalPunch:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(punchDamage,transform.parent);
+                targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(punchDamage,transform.parent);
                 break;
             case STATE.SkillKick:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(kickDamage, transform.parent);
+                targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(kickDamage, transform.parent);
                 break;
             case STATE.SkillMagicFire:
-                targetSelect.GetselectTarget.GetComponent<MonsterState>().Damage(magicFireDamage, transform.parent);
+                targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(magicFireDamage, transform.parent);
                 break;
             case STATE.SkillBomb:
                 break;
@@ -266,7 +266,7 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (Collider monster in colls)
         {
-          monster.transform.GetComponent<MonsterState>().Damage(bombDamage, transform.parent);
+          monster.transform.GetComponentInChildren<MonsterState>().Damage(bombDamage, transform.parent);
         }
     }
 
