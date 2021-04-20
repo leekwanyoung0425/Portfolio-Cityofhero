@@ -8,12 +8,24 @@ public class SlotData : MonoBehaviour
     // Start is called before the first frame update
 
     public Image[] slots = new Image[5];
-    public GameObject[] slotsInObj = new GameObject[5];
+    public SkillDataBase[] skills = new SkillDataBase[5];
+    public PlayerAttack attackState;
 
-    int j = 0;
+    private static SlotData instance;
+
+    public static SlotData GetInstance()
+    {
+        if(instance == null)
+        {
+            instance = FindObjectOfType<SlotData>();
+        }
+
+        return instance;
+    }
+
     void Start()
     {
-        
+        SlotRenewal();
     }
 
     // Update is called once per frame
@@ -31,10 +43,29 @@ public class SlotData : MonoBehaviour
         {
             if (slots[i].transform.childCount > 0)
             {
-                Debug.Log(i);
-                Transform img = slots[i].transform.GetChild(0);
-                 slotsInObj[i] = img.gameObject;
+                skills[i] = slots[i].transform.GetChild(0);
+                skills[i]
             }
         }      
+    }
+
+    public void SkillUse(int num)
+    {
+        switch(num)
+        {
+            case 1:
+                if(slotsInObj[num] != null)
+                {
+                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
+                    slotsInObj[num].transform.GetComponent<d>
+                }
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+        }
     }
 }

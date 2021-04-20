@@ -143,7 +143,7 @@ public class PlayerControl : CharacterMovement
             {
                 GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
-                attackState.ChangeState(PlayerAttack.STATE.NormalPunch);
+                SlotData.GetInstance().SkillUse(0);
             }
             else
             {
@@ -157,8 +157,9 @@ public class PlayerControl : CharacterMovement
                 targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
                 !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead)
             {
+                GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
-                attackState.ChangeState(PlayerAttack.STATE.SkillKick);
+                SlotData.GetInstance().SkillUse(1);
             }
             else
             {
@@ -172,8 +173,9 @@ public class PlayerControl : CharacterMovement
                 targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
                 !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead)
             {
+                GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
-                attackState.ChangeState(PlayerAttack.STATE.SkillMagicFire);
+                SlotData.GetInstance().SkillUse(2);
             }
             else
             {
@@ -184,8 +186,9 @@ public class PlayerControl : CharacterMovement
         {
             if(!GetIsAttacking)
             {
+                GetIsAttacking = true;
                 ChangeState(STATE.ATTACK);
-                attackState.ChangeState(PlayerAttack.STATE.SkillBomb);
+                SlotData.GetInstance().SkillUse(3);
             }
         }
     }
