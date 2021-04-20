@@ -112,13 +112,12 @@ public class TargetSelect : MonoBehaviour
         float outRange = 15.0f;
 
 
-        while (target.gameObject != null && GetIsSelect)
+        while (target != null && GetIsSelect)
         {            
             hpbar.value = targetData.GetCurHp;
             float dist = (transform.position - target.position).magnitude;
-
             if (dist >= outRange)
-            {
+            {            
                 GetIsSelect = false;
                 target.GetComponentInChildren<GetMaterial>().GetmyMaterial[1].SetFloat("Boolean_AB71AB7D", 0.0f);
                 Destroy(hpbar.gameObject);

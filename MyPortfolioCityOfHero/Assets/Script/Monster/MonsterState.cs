@@ -10,7 +10,7 @@ public class MonsterState : MonoBehaviour
 {
     public enum STATE
     {
-        CREATE, IDLE, SEARCHTRACE, ATTACKEDTRACE, ATTACK,GOBACK, DIE
+        CREATE, IDLE, SEARCHTRACE, ATTACKEDTRACE, ATTACK,turnback, DIE
     }
 
     public STATE mystate = STATE.CREATE;
@@ -36,31 +36,31 @@ public class MonsterState : MonoBehaviour
 
     float enemySearchDist = 15.0f;
 
-    Transform attackedTarget = null;
     Transform findTarget = null;
 
     public NavMeshAgent myAgent;
     Coroutine Destination = null;
     Coroutine Search = null;
 
-    bool isAttacked = false;
-    bool goback = false;
+    public bool isAttacked = false;
+    bool turnback = false;
 
 
     float attackDist = 1.5f;
     float moveSpeed = 0.0f;
 
-    public static Transform curAttackTarget = null;
+    public Transform curAttackTarget = null;
 
     float curSpeed = 0.0f;
     float maxSpeed = 1.0f;
 
     bool rotend = false;
-    AnimatorClipInfo[] myAnimClip;
 
     public float damage = 50.0f;
 
     public bool isDead = false;
+    public bool isAttacking = false;
+    public bool againTrace = false;
     
     // Start is called before the first frame update
     void Start()
@@ -73,10 +73,10 @@ public class MonsterState : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StateProcess();
+        StateProcess();       
     }
 
-    void StateChange(STATE s)
+    public void StateChange(STATE s)
     {
         if (mystate == s) return;
         mystate = s;
@@ -90,18 +90,18 @@ public class MonsterState : MonoBehaviour
             case STATE.SEARCHTRACE:
                 myAgent.SetDestination(findTarget.position);
                 if (Destination != null) StopCoroutine(Destination);
-                Destination = StartCoroutine(SetDestination(attackedTarget, findTarget));
+                Destination = StartCoroutine(SetDestination(findTarget, findTarget.position));
                 break;
             case STATE.ATTACKEDTRACE:
-                myAgent.SetDestination(attackedTarget.position);
+                myAgent.SetDestination(curAttackTarget.position);
                 if (Destination != null) StopCoroutine(Destination);
-                Destination = StartCoroutine(SetDestination(attackedTarget, findTarget));
+                Destination = StartCoroutine(SetDestination(curAttackTarget, curAttackTarget.position));
                 break;
             case STATE.ATTACK:
                 myAnim.SetBool("Attack", true);
                 break;
-            case STATE.GOBACK:
-                GoBack();
+            case STATE.turnback:
+                TurnbackStart();
                 break;
             case STATE.DIE:
                 MonsterDead();
@@ -122,10 +122,10 @@ public class MonsterState : MonoBehaviour
                 break;
             case STATE.ATTACKEDTRACE:
                 HPCheck();
-                AttackedTracing(attackedTarget);
+                AttackedTracing(curAttackTarget);
                 break;
-            case STATE.GOBACK:
-                GoBackEnd();
+            case STATE.turnback:
+                turnbackEnd();
                 break;
             case STATE.ATTACK:
                 HPCheck();
@@ -138,15 +138,15 @@ public class MonsterState : MonoBehaviour
 
     public void Damage(float damage, Transform target)
     {
-        if(!isDead)
+        if(!isDead && !turnback)
         { 
             mydata.GetCurHp -= damage;
             StartCoroutine(InstantiateDamageText(damage, damageTextPos));
-            attackedTarget = target;
-            if(!isAttacked && !goback)
+            curAttackTarget = target;
+            if(!isAttacked && !turnback)
             {
-            isAttacked = true;
-            StateChange(STATE.ATTACKEDTRACE);
+                isAttacked = true;
+                StateChange(STATE.ATTACKEDTRACE);
             }
         }
     }
@@ -267,16 +267,14 @@ public class MonsterState : MonoBehaviour
         float dist = Vector3.Distance(target.position,this.transform.parent.position);
         if(dist> enemySearchDist || target.GetComponent<PlayerControl>().IsDead)
         {
-            StateChange(STATE.GOBACK);
+            StateChange(STATE.turnback);
         }
     }
 
 
     void AttackedTracing(Transform target)
     {
-     
-        curAttackTarget = target;
-    
+        
         if (moveSpeed < maxSpeed)
         {
             curSpeed = Mathf.Clamp(curSpeed + Time.deltaTime, 0.0f, maxSpeed);
@@ -294,30 +292,26 @@ public class MonsterState : MonoBehaviour
         
         if (dist > enemySearchDist || target.GetComponent<PlayerControl>().IsDead)
         {
-            StateChange(STATE.GOBACK);
-        }
-        
+            StateChange(STATE.turnback);
+        }       
     }
 
-    void GoBack()
+    void TurnbackStart()
     {
-        goback = true;
+        turnback = true;
         curAttackTarget = null;
         findTarget = null;
-        attackedTarget = null;
         isAttacked = false;
-        Vector3 gobackPosition = mydata.GetPos;
+        Vector3 turnbackPosition = mydata.GetPos;
         myAgent.stoppingDistance = 0.0f;
-        myAgent.SetDestination(gobackPosition);
+        myAgent.SetDestination(turnbackPosition);
     }
 
-    void GoBackEnd()
+    void turnbackEnd()
     {
-        Debug.Log(myAgent.remainingDistance);
+      
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
-            Debug.Log(myAgent.stoppingDistance);
-            Debug.Log(myAgent.remainingDistance);
             if (moveSpeed > Mathf.Epsilon)
             {
                 curSpeed = Mathf.Clamp(curSpeed - Time.deltaTime, 0.0f, maxSpeed);
@@ -327,12 +321,12 @@ public class MonsterState : MonoBehaviour
             else
             {
                 myAgent.stoppingDistance = 1.5f;
-                goback = false;
+                turnback = false;
                 StateChange(STATE.IDLE);
             }
         }
 
-        if (mystate == STATE.GOBACK)
+        if (mystate == STATE.turnback)
         {
             if (mydata.GetCurHp < mydata.GetMaxHp)
             {
@@ -359,29 +353,31 @@ public class MonsterState : MonoBehaviour
         Vector3 dir = curAttackTarget.position - this.transform.parent.position;
         dir.Normalize();
         float dist = Vector3.Distance(curAttackTarget.position, this.transform.parent.position);
-
-        myAnimClip = myAnim.GetCurrentAnimatorClipInfo(0);
-
+        isAttacking = true;
+        againTrace = false;
         if (!curAttackTarget.GetComponent<PlayerControl>().IsDead)
         {
             if (dist > attackDist)
             {
                 myAnim.SetBool("Attack", false);
 
-                if (isAttacked && myAnimClip[0].clip.name == "OrcWalk")
+                if (isAttacked)
                 {
-                    StateChange(STATE.ATTACKEDTRACE);
+                    isAttacking = false;
+                    againTrace = true;
                 }
-                else if (!isAttacked && myAnimClip[0].clip.name == "OrcWalk")
+                else
                 {
-                    StateChange(STATE.SEARCHTRACE);
+                    isAttacking = false;
+                    againTrace = true;
                 }
             }
             else if (dist > enemySearchDist)
             {
+                isAttacking = false;
                 curAttackTarget = null;
                 myAnim.SetBool("Attack", false);
-                StateChange(STATE.GOBACK);
+                StateChange(STATE.turnback);
             }
             else
             {
@@ -390,28 +386,26 @@ public class MonsterState : MonoBehaviour
         }
         else
         {
+            isAttacking = false;
             curAttackTarget = null;
             myAnim.SetBool("Attack", false);
-            StateChange(STATE.GOBACK);
+            StateChange(STATE.turnback);
         }
     }
 
-    IEnumerator SetDestination(Transform attackedTarget, Transform serchTarget)
+    IEnumerator SetDestination(Transform Target, Vector3 pos)
     {
-
-        while(myAgent.remainingDistance > Mathf.Epsilon && !goback)
+        while (!isAttacking && !turnback && !isDead)
         {
-            myAnimClip = myAnim.GetCurrentAnimatorClipInfo(0);
-            if (attackedTarget != null && myAnimClip[0].clip.name == "OrcWalk")
+            if (pos != Target.position)
             {
-                
-                myAgent.SetDestination(attackedTarget.position);
+                pos = Target.position;               
+                if (Target != null)
+                {
+                    myAgent.SetDestination(pos);
+                }
             }
-            else if (serchTarget != null && myAnimClip[0].clip.name == "OrcWalk")
-            {
-                myAgent.SetDestination(serchTarget.position);
-            }
-            yield return new WaitForSeconds(1.0f);
+            yield return null;
         }
     }
 
