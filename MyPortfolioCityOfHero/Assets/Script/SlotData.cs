@@ -8,8 +8,7 @@ public class SlotData : MonoBehaviour
     // Start is called before the first frame update
 
     public Image[] slots = new Image[5];
-    public SkillDataBase[] skills = new SkillDataBase[5];
-    public PlayerAttack attackState;
+    public List<SkillDataBase> skills = new List<SkillDataBase>();
 
     private static SlotData instance;
 
@@ -33,38 +32,52 @@ public class SlotData : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.T))
         {
-            SlotRenewal();
+            
         }
     }
 
     public void SlotRenewal()
     {
-        for(int i=0; i<slots.Length; i++)
+        for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i].transform.childCount > 0)
             {
-                skills[i] = slots[i].transform.GetChild(0);
-                skills[i]
+                skills.Add(slots[i].transform.GetChild(0).GetComponent<SkillDataBase>());
             }
-        }      
+        }
     }
 
     public void SkillUse(int num)
     {
-        switch(num)
+        switch (num+1)
         {
             case 1:
-                if(slotsInObj[num] != null)
+                if (skills[num] != null)
                 {
                     slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
-                    slotsInObj[num].transform.GetComponent<d>
+                    skills[num].GetComponent<SkillDataBase>().Skillinit();
                 }
                 break;
             case 2:
+                if (skills[num] != null)
+                {
+                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
+                    skills[num].GetComponent<SkillDataBase>().Skillinit();
+                }
                 break;
             case 3:
+                if (skills[num] != null)
+                {
+                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
+                    skills[num].GetComponent<SkillDataBase>().Skillinit();
+                }
                 break;
             case 4:
+                if (skills[num] != null)
+                {
+                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
+                    skills[num].GetComponent<SkillDataBase>().Skillinit();
+                }
                 break;
         }
     }

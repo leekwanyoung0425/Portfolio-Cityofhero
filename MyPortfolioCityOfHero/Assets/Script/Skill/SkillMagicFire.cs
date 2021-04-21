@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class SkillMagicFire : SkillDataBase
 {
     public PlayerAttack attackState;
+    public float startTime = 0.0f;
     private void Start()
     {
         skillName = "Skill_MagicFire";
@@ -22,5 +23,18 @@ public class SkillMagicFire : SkillDataBase
     public override void Skillinit()
     {
         attackState.ChangeState(PlayerAttack.STATE.SkillMagicFire);
+    }
+    public override void CoolDown()
+    {
+
+    }
+    IEnumerator CoolDownInit(float coolDownTime)
+    {
+        //this.transform.parent.localPosition
+        while (startTime >= coolDownTime)
+        {
+
+            yield return null;
+        }
     }
 }
