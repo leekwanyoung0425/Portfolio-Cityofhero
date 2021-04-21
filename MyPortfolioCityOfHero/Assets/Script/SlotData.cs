@@ -9,9 +9,9 @@ public class SlotData : MonoBehaviour
 
     public Image[] slots = new Image[5];
     public List<SkillDataBase> skills = new List<SkillDataBase>();
+    public PlayerAttack playerAttack;
 
     private static SlotData instance;
-
     public static SlotData GetInstance()
     {
         if(instance == null)
@@ -30,10 +30,6 @@ public class SlotData : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.T))
-        {
-            
-        }
     }
 
     public void SlotRenewal()
@@ -47,38 +43,11 @@ public class SlotData : MonoBehaviour
         }
     }
 
-    public void SkillUse(int num)
+    public void SkillUse(int num, GameObject caster)
     {
-        switch (num+1)
-        {
-            case 1:
-                if (skills[num] != null)
-                {
-                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
-                    skills[num].GetComponent<SkillDataBase>().Skillinit();
-                }
-                break;
-            case 2:
-                if (skills[num] != null)
-                {
-                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
-                    skills[num].GetComponent<SkillDataBase>().Skillinit();
-                }
-                break;
-            case 3:
-                if (skills[num] != null)
-                {
-                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
-                    skills[num].GetComponent<SkillDataBase>().Skillinit();
-                }
-                break;
-            case 4:
-                if (skills[num] != null)
-                {
-                    slots[num].transform.GetComponent<Animator>().SetTrigger("SkillOn");
-                    skills[num].GetComponent<SkillDataBase>().Skillinit();
-                }
-                break;
-        }
+        playerAttack.skillInit += () => skills[num].GetComponent<SkillDataBase>().CoolDown();
+        playerAttack.skillInit += () => skills[num].GetComponent<SkillDataBase>().SkillAnim();
+        skills[num].GetComponent<SkillDataBase>().Skillinit();
+        skills[num].GetComponent<SkillDataBase>().caster = caster;
     }
 }

@@ -22,7 +22,7 @@ public class SkillBombAnimScript : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         attackState = animator.gameObject.GetComponentInParent<PlayerAttack>();
-        animator.gameObject.GetComponentInParent<PlayerControl>().GetIsAttacking = false;
+        animator.gameObject.GetComponentInParent<PlayerControl>().isAttackCheck = false;
         attackState.ChangeState(PlayerAttack.STATE.Wait);
     }
 
