@@ -22,6 +22,7 @@ public class SkillKick : SkillDataBase
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_divine");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
+        damage = 20.0f;
     }
 
     private void Update()
@@ -59,7 +60,11 @@ public class SkillKick : SkillDataBase
 
     public override void Damage()
     {
-        damage = 20.0f;
-        targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
+        target.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
+    }
+
+    public override void DamageText()
+    {
+        target.GetComponentInChildren<MonsterState>().DamageText(damage);
     }
 }

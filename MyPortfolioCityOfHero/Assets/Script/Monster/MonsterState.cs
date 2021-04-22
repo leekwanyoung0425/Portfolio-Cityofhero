@@ -140,8 +140,7 @@ public class MonsterState : MonoBehaviour
     {
         if(!isDead && !turnback)
         { 
-            mydata.GetCurHp -= damage;
-            StartCoroutine(InstantiateDamageText(damage, damageTextPos));
+            mydata.GetCurHp -= damage;           
             curAttackTarget = target;
             if(!isAttacked && !turnback)
             {
@@ -151,6 +150,10 @@ public class MonsterState : MonoBehaviour
         }
     }
 
+    public void DamageText(float damage)
+    {
+        StartCoroutine(InstantiateDamageText(damage, damageTextPos));
+    }
 
     public void HPCheck()
     {

@@ -22,6 +22,7 @@ public class NomalPunchAnimScript : StateMachineBehaviour
             isDamageInit = true;
             skillDataBase = animator.gameObject.GetComponentInParent<PlayerControl>().curCastingSkill;
             skillDataBase.Damage();
+            skillDataBase.DamageText();
         }
     }
 

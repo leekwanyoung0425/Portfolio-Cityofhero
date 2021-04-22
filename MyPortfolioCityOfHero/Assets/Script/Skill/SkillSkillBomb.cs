@@ -23,6 +23,7 @@ public class SkillSkillBomb : SkillDataBase
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_Green_invade");
         coolDownTime = 5.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
+        damage = 15.0f;
 
     }
 
@@ -71,12 +72,15 @@ public class SkillSkillBomb : SkillDataBase
     }
     public override void Damage()
     {
-        damage = 15.0f;
         Collider[] colls = Physics.OverlapSphere(caster.transform.position, 5.0f, monster);
 
         foreach (Collider monster in colls)
         {
             monster.transform.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
         }
+    }
+
+    public override void DamageText()
+    {
     }
 }

@@ -15,4 +15,5 @@ public abstract class SkillDataBase : MonoBehaviour
     public abstract void SkillAnim();
     public abstract void CoolDown();
     public abstract void Damage();
+    public abstract void DamageText();
 }

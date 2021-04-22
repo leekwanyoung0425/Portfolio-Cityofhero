@@ -30,6 +30,7 @@ public class SkillMagicFire : SkillDataBase
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
+        damage = 30.0f;
     }
 
     private void Update()
@@ -158,7 +159,10 @@ public class SkillMagicFire : SkillDataBase
 
     public override void Damage()
     {
-        damage = 30.0f;
         targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
+    }
+
+    public override void DamageText()
+    {
     }
 }

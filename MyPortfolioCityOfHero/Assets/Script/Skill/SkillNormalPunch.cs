@@ -18,6 +18,7 @@ public class SkillNormalPunch : SkillDataBase
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_stone_emerge");
         coolDownTime = 3.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
+        damage = 10.0f;
     }
 
     private void Update()
@@ -54,8 +55,12 @@ public class SkillNormalPunch : SkillDataBase
     }
 
     public override void Damage()
-    {
-        damage = 10.0f;
+    {       
         target.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
+    }
+
+    public override void DamageText()
+    {
+        target.GetComponentInChildren<MonsterState>().DamageText(damage);
     }
 }
