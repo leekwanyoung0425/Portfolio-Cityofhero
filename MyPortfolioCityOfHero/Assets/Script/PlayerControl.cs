@@ -28,13 +28,14 @@ public class PlayerControl : CharacterMovement
     public float longAttackDist = 15.0f;
 
     public bool iscoolDownCheck;
-    public bool isAttackCheck;
 
     public Transform headTr;
     public TMPro.TMP_Text textPrefab;
     Canvas canvas;
     Vector2 halfsize = Vector2.zero;
     public SkillDataBase curCastingSkill;
+    public PlayerAttack playerAttack;
+
 
     Coroutine attackAlertTextCheck;
 
@@ -47,14 +48,12 @@ public class PlayerControl : CharacterMovement
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
         iscoolDownCheck = false;
-        isAttackCheck = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        StateProcess();
-        
+        StateProcess();       
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
@@ -88,8 +87,8 @@ public class PlayerControl : CharacterMovement
         {
             case STATE.IDLE:
                 WalkCheck();
+                InputNumber();
                 JumpCheck();
-                AttackCheck();
                 break;
             case STATE.WALK:
                 base.KeyboardMovePosition(horizontal, vertical);
@@ -134,82 +133,30 @@ public class PlayerControl : CharacterMovement
         }
     }
 
-    void AttackCheck()
+    void AttackCheck(int inputSlotNum)
     {
-        Image slotdata;
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        SkillDataBase skilldata;
+        skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();       
+        if (skilldata != null && !iscoolDownCheck && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isShortAttackPossible)
         {
-            slotdata = SlotData.GetInstance().slots[0];
-            if (targetSelect.GetselectTarget != null && 
-                isShortAttackPossible && !iscoolDownCheck &&
-                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
-                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead && !isAttackCheck && slotdata!= null)
+            ChangeState(STATE.ATTACK);
+            iscoolDownCheck = true;
+            curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
+            SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+            
+            if (curCastingSkill.isRotateSkill)
             {
-                iscoolDownCheck = true;
-                isAttackCheck = true;
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[0].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUse(0, this.gameObject);
+                playerAttack.AttackReady();
             }
             else
             {
-                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isShortAttackPossible, isAttackCheck, iscoolDownCheck , slotdata));
+                playerAttack.SkillInit();
             }
         }
-        else if(Input.GetKeyDown(KeyCode.Alpha2))
+        else
         {
-            slotdata = SlotData.GetInstance().slots[1];
-            if (targetSelect.GetselectTarget != null &&
-                isShortAttackPossible && !iscoolDownCheck &&
-                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
-                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead && !isAttackCheck && slotdata != null)
-            {
-                iscoolDownCheck = true;
-                isAttackCheck = true;
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[1].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUse(1, this.gameObject);
-            }
-            else
-            {
-                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isShortAttackPossible, isAttackCheck, iscoolDownCheck, slotdata));
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            slotdata = SlotData.GetInstance().slots[2];
-            if (targetSelect.GetselectTarget != null &&
-                isLongAttackPossible && !iscoolDownCheck &&
-                targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") &&
-                !targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().isDead && !isAttackCheck&& slotdata != null)
-            {
-                iscoolDownCheck = true;
-                isAttackCheck = true;
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[2].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUse(2, this.gameObject);
-            }
-            else
-            {
-                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isLongAttackPossible, isAttackCheck, iscoolDownCheck, slotdata));
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            slotdata = SlotData.GetInstance().slots[3];
-            if (!iscoolDownCheck && !isAttackCheck && slotdata != null)
-            {
-                iscoolDownCheck = true;
-                isAttackCheck = true;
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[3].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUse(3, this.gameObject);
-            }
-            else
-            {
-                attackAlertTextCheck = StartCoroutine(AttackAlertText(targetSelect.GetselectTarget, isLongAttackPossible, isAttackCheck, iscoolDownCheck, slotdata));
-            }
-        }
+            attackAlertTextCheck = StartCoroutine(AttackAlertText(skilldata, iscoolDownCheck, targetSelect.GetselectTarget.gameObject.layer, isShortAttackPossible));
+        }      
     }
 
     void OnCollisionEnter(Collision other)
@@ -236,7 +183,7 @@ public class PlayerControl : CharacterMovement
     }
 
 
-    IEnumerator AttackAlertText(Transform targetSelect, bool isDistAttackPossible, bool isAttackCheck, bool iscoolDownCheck, Image slotdata)
+    IEnumerator AttackAlertText(SkillDataBase slotdata, bool iscoolDownCheck, LayerMask layer, bool isShortAttackPossible)
     {
         Vector3 textpos = Camera.main.WorldToScreenPoint(headTr.position);
         textpos.x -= halfsize.x;
@@ -244,34 +191,27 @@ public class PlayerControl : CharacterMovement
         TMPro.TMP_Text attackAlertText = Instantiate(textPrefab);
         attackAlertText.transform.SetParent(canvas.transform);
         attackAlertText.transform.localPosition = textpos;
+        float textUpSpeed = 5.0f;
+        bool stop = false;
 
-        if(slotdata == null)
+        if (slotdata == null)
         {
             attackAlertText.text = "슬롯창이 비어있습니다.";
-        }
-        else if (targetSelect == null)
-        {
-            attackAlertText.text = "선택된 타겟이 없습니다.";
-        }
-        else if(!isDistAttackPossible)
-        {
-            attackAlertText.text = "적이 너무 멀리있습니다.";
-        }
-        else if(isAttackCheck)
-        {
-            attackAlertText.text = "현재 공격중입니다.";
-        }
-        else if(targetSelect.gameObject.layer != LayerMask.NameToLayer("Monster"))
-        {
-            attackAlertText.text = "공격 대상이 아닙니다.";
         }
         else if (iscoolDownCheck)
         {
             attackAlertText.text = "재사용 대기중입니다.";
         }
+        else if(layer != LayerMask.NameToLayer("Monster"))
+        {
+            attackAlertText.text = "공격 대상이 아닙니다.";
+        }
 
-        float textUpSpeed = 5.0f;
-        bool stop = false;
+        else if(isShortAttackPossible)
+        {
+            attackAlertText.text = "적이 너무 멀리있습니다.";
+        }
+
 
         while (!stop)
         {
@@ -288,6 +228,27 @@ public class PlayerControl : CharacterMovement
             }
 
             yield return null;
+        }
+    }
+
+    void InputNumber()
+    {
+        int num = -1;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            num = 0;
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            num = 1;
+        else if(Input.GetKeyDown(KeyCode.Alpha3))
+            num = 2;
+        else if(Input.GetKeyDown(KeyCode.Alpha4))
+            num = 3;
+        else if(Input.GetKeyDown(KeyCode.Alpha5))
+            num = 4;
+
+        if (num > -1)
+        {
+            AttackCheck(num);
         }
     }
 }

@@ -15,17 +15,8 @@ public class PlayerAttack : MonoBehaviour
     public Transform myModel;
     public CameraMove cameramove;
 
-    public enum STATE
-    {
-        Wait, NormalPunch, SkillKick, SkillMagicFire, SkillBomb
-    }
-
-    public STATE myState = STATE.Wait;
-    float horizontal = 0.0f;
-    float vertical = 0.0f;
 
     public PlayerControl playerControl;
-    Coroutine changeweight = null;
     Coroutine characterRotate = null;
 
     void Start()
@@ -36,79 +27,8 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        StateProcess();
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
     }
-
-    public void ChangeState(STATE s)
-    {
-        if (myState == s) return;
-        myState = s;
-
-        switch(myState)
-        {
-            case STATE.Wait:
-                if (changeweight != null) StopCoroutine(changeweight);
-                changeweight = StartCoroutine(ChangeLayerWeight(1, 0.0f, 0.5f));
-                playerControl.ChangeState(PlayerControl.STATE.IDLE);
-                break;
-            case STATE.NormalPunch:
-                AttackReady();
-                break;
-            case STATE.SkillKick:
-                AttackReady();
-                break;
-            case STATE.SkillMagicFire:
-                AttackReady();
-                break;
-            case STATE.SkillBomb:
-                if (changeweight != null) StopCoroutine(changeweight);
-                changeweight = StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
-                SkillInit();
-                break;
-        }           
-    }
-
-    void StateProcess()
-    {
-        switch (myState)
-        {
-            case STATE.Wait:
-                break;
-            case STATE.NormalPunch:                                            
-                break;
-            case STATE.SkillKick:
-                break;
-            case STATE.SkillMagicFire:
-                break;
-            case STATE.SkillBomb:
-                break;
-        }
-    }
-
-    IEnumerator ChangeLayerWeight(int layer, float target, float t)
-    {
-        float speed = t > Mathf.Epsilon ? 1.0f / t : 1f;
-        float curweight = myAnim.GetLayerWeight(layer);
-        float dir = target - curweight > 0f ? 1f : -1f;
-        float value = Mathf.Abs(target - curweight);
-
-        while (curweight < target - Mathf.Epsilon || curweight > target + Mathf.Epsilon)
-        {
-            float delta = Time.deltaTime * speed;
-            if (value - delta <= Mathf.Epsilon)
-            {
-                delta = value;
-            }
-            value -= delta;
-
-            curweight += dir * delta;
-            myAnim.SetLayerWeight(layer, curweight);
-            yield return null;
-        }
-    }
+    
 
     IEnumerator CharacterRotate(Transform target)
     {
@@ -147,10 +67,8 @@ public class PlayerAttack : MonoBehaviour
 
  
 
-    void AttackReady()
+    public void AttackReady()
     {
-        if (changeweight != null) StopCoroutine(changeweight);
-        changeweight = StartCoroutine(ChangeLayerWeight(1, 1.0f, 0.5f));
         if (characterRotate != null) StopCoroutine(characterRotate);
         characterRotate = StartCoroutine(CharacterRotate(targetSelect.GetselectTarget));
     }

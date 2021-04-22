@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class SkillBombAnimScript : StateMachineBehaviour
 {
-    PlayerAttack attackState;
-    bool isAttacking;
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     //{
@@ -21,9 +19,7 @@ public class SkillBombAnimScript : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        attackState = animator.gameObject.GetComponentInParent<PlayerAttack>();
-        animator.gameObject.GetComponentInParent<PlayerControl>().isAttackCheck = false;
-        attackState.ChangeState(PlayerAttack.STATE.Wait);
+        animator.gameObject.GetComponentInParent<PlayerControl>().ChangeState(PlayerControl.STATE.IDLE);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

@@ -17,6 +17,7 @@ public class SkillSkillBomb : SkillDataBase
     public LayerMask monster;
     private void Start()
     {
+        isRotateSkill = true;
         skillName = "Skill_Bomb";
         iconImage = gameObject.AddComponent<Image>();
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_Green_invade");
@@ -30,10 +31,6 @@ public class SkillSkillBomb : SkillDataBase
         
     }
 
-    public override void Skillinit()
-    {
-        playerAttack.ChangeState(PlayerAttack.STATE.SkillBomb);
-    }
 
     public override void SkillAnim()
     {

@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class SkillKickAnimScript : StateMachineBehaviour
 {
-    PlayerAttack attackState;
-    bool isAttacking;
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     //{
@@ -21,10 +20,7 @@ public class SkillKickAnimScript : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //Destroy(animator.gameObject.GetComponentInParent<PlayerAttack>().kickEffect);
-        attackState = animator.gameObject.GetComponentInParent<PlayerAttack>();
-        animator.gameObject.GetComponentInParent<PlayerControl>().isAttackCheck = false;
-        attackState.ChangeState(PlayerAttack.STATE.Wait);
+        animator.gameObject.GetComponentInParent<PlayerControl>().ChangeState(PlayerControl.STATE.IDLE);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

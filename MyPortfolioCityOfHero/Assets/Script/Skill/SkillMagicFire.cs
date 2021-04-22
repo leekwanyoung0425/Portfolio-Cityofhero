@@ -24,6 +24,7 @@ public class SkillMagicFire : SkillDataBase
 
     private void Start()
     {
+        isRotateSkill = true;
         skillName = "Skill_MagicFire";
         iconImage = gameObject.AddComponent<Image>();
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
@@ -36,10 +37,7 @@ public class SkillMagicFire : SkillDataBase
         
     }
 
-    public override void Skillinit()
-    {
-        playerAttack.ChangeState(PlayerAttack.STATE.SkillMagicFire);
-    }
+
 
     public override void SkillAnim()
     {

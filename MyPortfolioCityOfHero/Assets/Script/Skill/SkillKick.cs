@@ -16,6 +16,7 @@ public class SkillKick : SkillDataBase
     public TargetSelect targetSelect;
     private void Start()
     {
+        isRotateSkill = true;
         skillName = "Skill_Kick";
         iconImage = gameObject.AddComponent<Image>();
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_divine");
@@ -28,18 +29,11 @@ public class SkillKick : SkillDataBase
 
     }
 
-    public override void Skillinit()
-    {
-        playerAttack.ChangeState(PlayerAttack.STATE.SkillKick);
-    }
-
     public override void SkillAnim()
     {
-        if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Skill_Kick"))
-        {
-            kickEffect = Instantiate(kickEffectPrefab, kickEffectPos);
-            myAnim.SetTrigger("Skill_Kick");
-        }
+      kickEffect = Instantiate(kickEffectPrefab, kickEffectPos);
+      myAnim.SetTrigger("Skill_Kick");
+        kickEffect.GetComponent<DestroySkillEffect>().DestroyEffect(1.18f);
     }
 
     public override void CoolDown()

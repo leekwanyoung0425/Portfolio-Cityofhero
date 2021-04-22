@@ -43,11 +43,11 @@ public class SlotData : MonoBehaviour
         }
     }
 
-    public void SkillUse(int num, GameObject caster)
+    public void SkillUseReady(int num, GameObject caster, Transform target)
     {
         playerAttack.skillInit += () => skills[num].GetComponent<SkillDataBase>().CoolDown();
         playerAttack.skillInit += () => skills[num].GetComponent<SkillDataBase>().SkillAnim();
-        skills[num].GetComponent<SkillDataBase>().Skillinit();
         skills[num].GetComponent<SkillDataBase>().caster = caster;
+        skills[num].GetComponent<SkillDataBase>().target = target;
     }
 }

@@ -10,9 +10,9 @@ public class SkillNormalPunch : SkillDataBase
     public PlayerControl playerControl;
     public Animator myAnim;
     RectTransform size;
-    public TargetSelect targetSelect;
     private void Start()
     {
+        isRotateSkill = true;
         skillName = "Skill_NormalPunch";
         iconImage = gameObject.AddComponent<Image>();
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_stone_emerge");
@@ -24,17 +24,11 @@ public class SkillNormalPunch : SkillDataBase
     {
     }
 
-    public override void Skillinit()
-    {
-        playerAttack.ChangeState(PlayerAttack.STATE.NormalPunch);
-    }
+
 
     public override void SkillAnim()
     {
-        if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Normal_Punch"))
-        {
-            myAnim.SetTrigger("Normal_Punch");
-        }
+      myAnim.SetTrigger("Normal_Punch");
     }
 
 
@@ -62,6 +56,6 @@ public class SkillNormalPunch : SkillDataBase
     public override void Damage()
     {
         damage = 10.0f;
-        targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
+        target.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
     }
 }
