@@ -14,7 +14,7 @@ public class PlayerControl : CharacterMovement
     public STATE myState = STATE.IDLE;
 
     public Animator myAnim;
-    BoxCollider _collider;
+    CapsuleCollider _collider;
     float horizontal = 0.0f;
     float vertical = 0.0f;
     private bool isGround = true;
@@ -22,10 +22,8 @@ public class PlayerControl : CharacterMovement
     public TargetSelect targetSelect;
 
     public bool IsDead = false;
-    public bool isShortAttackPossible = false;
-    public bool isLongAttackPossible = false;
-    public float shortAttackDist = 1.5f;
-    public float longAttackDist = 15.0f;
+    public bool isPossibleAttackDist = false;
+
 
     public bool iscoolDownCheck;
 
@@ -42,8 +40,7 @@ public class PlayerControl : CharacterMovement
     // Start is called before the first frame update
     void Start()
     {
-        _collider = GetComponent<BoxCollider>();
-        StartCoroutine("IsAttackDistCheck");
+        _collider = GetComponent<CapsuleCollider>();
         canvas = FindObjectOfType<Canvas>();
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
@@ -96,6 +93,7 @@ public class PlayerControl : CharacterMovement
                 JumpCheck();
                 break;
             case STATE.ATTACK:
+                InputNumber();
                 break;
             case STATE.DEAD:
                 break;
@@ -136,27 +134,54 @@ public class PlayerControl : CharacterMovement
     void AttackCheck(int inputSlotNum)
     {
         SkillDataBase skilldata;
-        skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();       
-        if (skilldata != null && !iscoolDownCheck && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isShortAttackPossible)
+        skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
+        float dist = 0.0f;
+        
+        if (targetSelect.GetselectTarget != null)dist = (this.transform.position - targetSelect.GetselectTarget.position).magnitude;
+ 
+        isPossibleAttackDist = skilldata.dist >= dist ? true : false;
+
+
+        if (skilldata.isNonTargetSkill)
         {
-            ChangeState(STATE.ATTACK);
-            iscoolDownCheck = true;
-            curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
-            SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
-            
-            if (curCastingSkill.isRotateSkill)
+            if (!iscoolDownCheck)
             {
-                playerAttack.AttackReady();
+                ChangeState(STATE.ATTACK);
+                iscoolDownCheck = true;
+                curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
+                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                playerAttack.SkillInit();
             }
             else
             {
-                playerAttack.SkillInit();
+                Debug.Log("안들어오냐");
+                if (attackAlertTextCheck != null) StopCoroutine(attackAlertTextCheck);
+                attackAlertTextCheck = StartCoroutine(AttackAlertText());
             }
         }
         else
         {
-            attackAlertTextCheck = StartCoroutine(AttackAlertText(skilldata, iscoolDownCheck, targetSelect.GetselectTarget.gameObject.layer, isShortAttackPossible));
-        }      
+            if (skilldata != null && !iscoolDownCheck && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isPossibleAttackDist)
+            {
+                ChangeState(STATE.ATTACK);
+                iscoolDownCheck = true;
+                curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
+                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                if (curCastingSkill.isRotateSkill)
+                {
+                    playerAttack.AttackReady();
+                }
+                else
+                {
+                    playerAttack.SkillInit();
+                }
+            }
+            else
+            {
+                if (attackAlertTextCheck != null) StopCoroutine(attackAlertTextCheck);
+                attackAlertTextCheck = StartCoroutine(AttackAlertText(skilldata, iscoolDownCheck, targetSelect.GetselectTarget.gameObject.layer, isPossibleAttackDist));
+            }
+        }                     
     }
 
     void OnCollisionEnter(Collision other)
@@ -164,26 +189,9 @@ public class PlayerControl : CharacterMovement
         isGround = true;
     }
 
-    IEnumerator IsAttackDistCheck()
-    {
-       float dist = 0.0f;
-               
-        while (!IsDead)
-        {
-            Transform target = targetSelect.GetselectTarget;
+  
 
-            if (target != null)
-            {
-                dist = (this.transform.position - target.position).magnitude;
-                isShortAttackPossible = (dist <= shortAttackDist ) ? true : false;
-                isLongAttackPossible = (dist <= longAttackDist) ? true : false;
-            }
-            yield return null;
-        }
-    }
-
-
-    IEnumerator AttackAlertText(SkillDataBase slotdata, bool iscoolDownCheck, LayerMask layer, bool isShortAttackPossible)
+    IEnumerator AttackAlertText(SkillDataBase slotdata, bool iscoolDownCheck, LayerMask layer, bool isPossibleAttackDist)
     {
         Vector3 textpos = Camera.main.WorldToScreenPoint(headTr.position);
         textpos.x -= halfsize.x;
@@ -207,11 +215,42 @@ public class PlayerControl : CharacterMovement
             attackAlertText.text = "공격 대상이 아닙니다.";
         }
 
-        else if(isShortAttackPossible)
+        else if(!isPossibleAttackDist)
         {
             attackAlertText.text = "적이 너무 멀리있습니다.";
         }
 
+
+        while (!stop)
+        {
+            attackAlertText.transform.Translate(Vector3.up * textUpSpeed * Time.smoothDeltaTime);
+            Color col = attackAlertText.color;
+            col.a -= Time.deltaTime * 0.5f;
+            attackAlertText.color = col;
+
+            if (attackAlertText.color.a <= Mathf.Epsilon)
+            {
+                Destroy(attackAlertText.gameObject);
+                stop = true;
+                attackAlertTextCheck = null;
+            }
+
+            yield return null;
+        }
+    }
+
+    IEnumerator AttackAlertText()
+    {
+        Vector3 textpos = Camera.main.WorldToScreenPoint(headTr.position);
+        textpos.x -= halfsize.x;
+        textpos.y -= halfsize.y;
+        TMPro.TMP_Text attackAlertText = Instantiate(textPrefab);
+        attackAlertText.transform.SetParent(canvas.transform);
+        attackAlertText.transform.localPosition = textpos;
+        float textUpSpeed = 5.0f;
+        bool stop = false;
+
+        attackAlertText.text = "재사용 대기중입니다.";
 
         while (!stop)
         {

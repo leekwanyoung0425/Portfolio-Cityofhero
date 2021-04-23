@@ -23,6 +23,7 @@ public class SkillKick : SkillDataBase
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 20.0f;
+        dist = 1.5f;
     }
 
     private void Update()
@@ -34,7 +35,7 @@ public class SkillKick : SkillDataBase
     {
       kickEffect = Instantiate(kickEffectPrefab, kickEffectPos);
       myAnim.SetTrigger("Skill_Kick");
-        kickEffect.GetComponent<DestroySkillEffect>().DestroyEffect(1.18f);
+      kickEffect.GetComponent<DestroySkillEffect>().DestroyEffect(1.18f);
     }
 
     public override void CoolDown()
@@ -58,13 +59,4 @@ public class SkillKick : SkillDataBase
         playerControl.iscoolDownCheck = false;
     }
 
-    public override void Damage()
-    {
-        target.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
-    }
-
-    public override void DamageText()
-    {
-        target.GetComponentInChildren<MonsterState>().DamageText(damage);
-    }
 }

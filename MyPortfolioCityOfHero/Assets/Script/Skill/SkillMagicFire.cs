@@ -15,7 +15,6 @@ public class SkillMagicFire : SkillDataBase
     public Transform magicFireRightPos;
     GameObject magicFireLeftEffect;
     GameObject magicFireRightEffect;
-    public TargetSelect targetSelect;
     GameObject magicFireLeftEffect1;
     GameObject magicFireRightEffect1;
     public GameObject magicFireEffectExplodePrefab;
@@ -31,6 +30,7 @@ public class SkillMagicFire : SkillDataBase
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 30.0f;
+        dist = 15.0f;
     }
 
     private void Update()
@@ -42,15 +42,14 @@ public class SkillMagicFire : SkillDataBase
 
     public override void SkillAnim()
     {
-        if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Skill_MagicFire"))
+        if (!myAnim.GetCurrentAnimatorStateInfo(0).IsName("Skill_MagicFire"))
         {
-
             magicFireLeftEffect = Instantiate(magicFireEffectBallPrefab, magicFireLeftPos.position, magicFireLeftPos.rotation);
             magicFireRightEffect = Instantiate(magicFireEffectBallPrefab, magicFireRightPos.position, magicFireRightPos.rotation);
             magicFireLeftEffect.transform.SetParent(magicFireLeftPos);
             magicFireRightEffect.transform.SetParent(magicFireLeftPos);
 
-            StartCoroutine(EffectUp(magicFireLeftPos, magicFireRightPos, targetSelect.GetselectTarget));
+            StartCoroutine(EffectUp(magicFireLeftPos, magicFireRightPos, target));
 
             myAnim.SetTrigger("Skill_MagicFire");
         }
@@ -143,11 +142,11 @@ public class SkillMagicFire : SkillDataBase
                 {
                     delta2 = dist2;
                 }
+                playerAttack.TargetDamage();
                 Destroy(fire1.gameObject);
                 Destroy(fire2.gameObject);
                 leftEffect.localPosition = new Vector3(-1, 0, 0);
                 rightEffect.localPosition = new Vector3(1, 0, 0);
-                Damage();
             }
 
             if (fire1 != null) fire1.Translate(dir1 * delta1, Space.World);
@@ -155,14 +154,5 @@ public class SkillMagicFire : SkillDataBase
 
             yield return null;
         }
-    }
-
-    public override void Damage()
-    {
-        targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
-    }
-
-    public override void DamageText()
-    {
     }
 }

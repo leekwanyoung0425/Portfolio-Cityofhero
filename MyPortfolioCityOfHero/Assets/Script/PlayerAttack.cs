@@ -14,14 +14,15 @@ public class PlayerAttack : MonoBehaviour
     public float rotSpeed = 5.0f;
     public Transform myModel;
     public CameraMove cameramove;
+    public float damage =  0.0f;
 
 
     public PlayerControl playerControl;
     Coroutine characterRotate = null;
 
+
     void Start()
     {
-       
     }
 
     // Update is called once per frame
@@ -78,5 +79,22 @@ public class PlayerAttack : MonoBehaviour
     {
         skillInit?.Invoke();
         skillInit = null;
+    }
+
+    public void TargetDamage()
+    {
+        damage = playerControl.curCastingSkill.damage;
+        targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
+        targetSelect.GetselectTarget.GetComponentInChildren<MonsterState>().DamageText(damage);
+
+    }
+    public void TargetDamage(Collider[] colls)
+    {
+      damage = playerControl.curCastingSkill.damage;
+        foreach (Collider col in colls)
+        {
+            col.gameObject.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
+            col.gameObject.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
+        }
     }
 }

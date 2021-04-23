@@ -19,6 +19,7 @@ public class SkillNormalPunch : SkillDataBase
         coolDownTime = 3.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 10.0f;
+        dist = 1.5f;
     }
 
     private void Update()
@@ -52,15 +53,5 @@ public class SkillNormalPunch : SkillDataBase
         }
         size.localScale = new Vector3(1.0f, 1.0f, 0.0f);
         playerControl.iscoolDownCheck = false;
-    }
-
-    public override void Damage()
-    {       
-        target.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
-    }
-
-    public override void DamageText()
-    {
-        target.GetComponentInChildren<MonsterState>().DamageText(damage);
     }
 }

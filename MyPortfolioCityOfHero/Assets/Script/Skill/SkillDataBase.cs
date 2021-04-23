@@ -12,8 +12,8 @@ public abstract class SkillDataBase : MonoBehaviour
     public GameObject caster = null;
     public Transform target = null;
     public bool isRotateSkill;
+    public float dist = 0.0f;
+    public bool isNonTargetSkill = false;
     public abstract void SkillAnim();
     public abstract void CoolDown();
-    public abstract void Damage();
-    public abstract void DamageText();
 }

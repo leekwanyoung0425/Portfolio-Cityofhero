@@ -24,7 +24,7 @@ public class SkillSkillBomb : SkillDataBase
         coolDownTime = 5.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 15.0f;
-
+        isNonTargetSkill = true;
     }
 
     private void Update()
@@ -35,19 +35,27 @@ public class SkillSkillBomb : SkillDataBase
 
     public override void SkillAnim()
     {
-        if (!myAnim.GetCurrentAnimatorStateInfo(1).IsName("Skill_Bomb"))
+        if (!myAnim.GetCurrentAnimatorStateInfo(0).IsName("Skill_Bomb"))
         {
             bombEffect = Instantiate(bombEffectSetp1Prefab, bombEffectPos.position, Quaternion.identity);
             myAnim.SetTrigger("Skill_Bomb");
+            StartCoroutine(InitBombEffectSetp2());
         }
     }
 
-    public void InitBombEffectSetp2()
+    IEnumerator InitBombEffectSetp2()
     {
-        Destroy(bombEffect);
-        bombEffect = Instantiate(bombEffectSetp2Prefab, bombEffectPos.position, Quaternion.identity);
-        Damage();
-        Destroy(bombEffect, 5.0f);
+        bool stop = true;
+        while (stop)
+        {
+            yield return new WaitForSeconds(1.65f);
+            stop = false;
+            Destroy(bombEffect);
+            bombEffect = Instantiate(bombEffectSetp2Prefab, bombEffectPos.position, Quaternion.identity);
+            Collider[] colls = Physics.OverlapSphere(caster.transform.position, 5.0f, monster);
+            playerAttack.TargetDamage(colls);
+            Destroy(bombEffect, 5.0f);
+        }
     }
 
     public override void CoolDown()
@@ -70,17 +78,6 @@ public class SkillSkillBomb : SkillDataBase
         size.localScale = new Vector3(1.0f, 1.0f, 0.0f);
         playerControl.iscoolDownCheck = false;
     }
-    public override void Damage()
-    {
-        Collider[] colls = Physics.OverlapSphere(caster.transform.position, 5.0f, monster);
 
-        foreach (Collider monster in colls)
-        {
-            monster.transform.GetComponentInChildren<MonsterState>().Damage(damage, caster.transform);
-        }
-    }
 
-    public override void DamageText()
-    {
-    }
 }
