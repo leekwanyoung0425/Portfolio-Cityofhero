@@ -93,8 +93,11 @@ public class PlayerAttack : MonoBehaviour
       damage = playerControl.curCastingSkill.damage;
         foreach (Collider col in colls)
         {
-            col.gameObject.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
-            col.gameObject.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
+            if (col.gameObject != null)
+            {
+                col.gameObject.GetComponentInChildren<MonsterState>().Damage(damage, this.transform.parent);
+                col.gameObject.GetComponentInChildren<MonsterState>().DamageText(damage);
+            }
         }
     }
 }

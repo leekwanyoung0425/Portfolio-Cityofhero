@@ -5,9 +5,12 @@ using UnityEngine.UI;
 
 public abstract class SkillDataBase : MonoBehaviour
 {
+    public int skillNumber;
     public string skillName = "";
+    public string needPreviousSkillName = "";
     public Image iconImage = null;
     public float coolDownTime = 0.0f;
+    public bool isCoolDown = false;
     public float damage = 0.0f;
     public GameObject caster = null;
     public Transform target = null;

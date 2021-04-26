@@ -19,14 +19,16 @@ public class SkillMagicFire : SkillDataBase
     GameObject magicFireRightEffect1;
     public GameObject magicFireEffectExplodePrefab;
     public GameObject magicFireEffectArrowPrefab;
-
+    public GameObject coolDownEffect;
 
     private void Start()
     {
+        skillNumber = 2;
         isRotateSkill = true;
         skillName = "Skill_MagicFire";
-        iconImage = gameObject.AddComponent<Image>();
-        iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
+        needPreviousSkillName = "Skill_NormalPunch";
+        iconImage = gameObject.GetComponent<Image>();
+        //iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 30.0f;
@@ -61,18 +63,37 @@ public class SkillMagicFire : SkillDataBase
 
     IEnumerator CoolDownInit(float coolDownTime)
     {
+        isCoolDown = true;
         size.localScale = new Vector3(0.3f, 0.3f, 0.0f);
         float delta = 0.0f;
         float startTime = 0.0f;
+        Color col = iconImage.color;
+        col.a = 0.15f;
+        iconImage.color = col;
+        col.a = 0f;
+        float setEffectTime = coolDownTime * 0.6f;
         while (startTime < coolDownTime)
         {
+            if (setEffectTime < startTime)
+            {
+                GameObject obj = Instantiate(coolDownEffect, this.transform.parent);
+                obj.GetComponent<CoolDownEffect>().startime = setEffectTime;
+                obj.GetComponent<CoolDownEffect>().endtime = coolDownTime;
+                obj.GetComponent<CoolDownEffect>().midletime = Mathf.Lerp(setEffectTime, coolDownTime, 0.5f);
+                obj.GetComponent<CoolDownEffect>().start = true;
+                setEffectTime = coolDownTime;
+            }
             startTime += Time.deltaTime;
             delta = 0.7f * Time.deltaTime / coolDownTime;
+            col.a = 0.85f * Time.deltaTime / coolDownTime;
+            iconImage.color += col;
             size.localScale += new Vector3(delta, delta, 0.0f);
             yield return null;
         }
         size.localScale = new Vector3(1.0f, 1.0f, 0.0f);
-        playerControl.iscoolDownCheck = false;
+        col.a = 1.0f;
+        iconImage.color = col;
+        isCoolDown = false;
     }
 
     IEnumerator EffectUp(Transform leftEffect, Transform rightEffect, Transform target)

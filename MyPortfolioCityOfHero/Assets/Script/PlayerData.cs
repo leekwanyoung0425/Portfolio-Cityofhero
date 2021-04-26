@@ -7,6 +7,11 @@ using TMPro;
 public class PlayerData : MonoBehaviour
 {
     string playerName = "히어로";
+    int level = 0;
+    float curExperience = 0.0f;
+    float curExperiencePercent = 0.0f;
+    float targetExperience = 0.0f;
+    float MaxExperiencePercent = 100.0f;
     float maxHp = 1000.0f;
     float curHp = 0.0f;
     public TMP_Text playerNameTextPrefab;
@@ -24,7 +29,10 @@ public class PlayerData : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        level = 1;
         curHp = maxHp;
+        targetExperience = ExperienceData.GetInstance().CheckTargetExperience(level);
+        curExperiencePercent = (curExperience / targetExperience) * 100.0f;
         canvasSize.x = canvas.pixelRect.width * 0.5f;
         canvasSize.y = canvas.pixelRect.height * 0.5f;
         text = Instantiate(playerNameTextPrefab);
@@ -111,6 +119,31 @@ public class PlayerData : MonoBehaviour
                 stop = true;
             }
             yield return null;
+        }
+    }
+
+    public void LevelUp(float tempExperiencePercent, float tempExperience)
+    {
+        level = ExperienceData.GetInstance().CheckLevel(tempExperience);
+        curExperience = tempExperience;
+        curExperiencePercent = MaxExperiencePercent - tempExperiencePercent;
+        ++PlayerSkillData.GetInstance().skillPoint;
+    }
+
+    public void GetExperience(float getExperience)
+    {
+        float getExperiencePercent = (getExperience / targetExperience) * 100.0f;
+
+        if (curExperiencePercent + getExperiencePercent >= MaxExperiencePercent)
+        {
+            float tempExperiencePercent = curExperiencePercent +getExperiencePercent;
+            float tempExperience = curExperience + getExperience;
+            LevelUp(tempExperiencePercent, tempExperience);
+        }
+        else
+        {
+            curExperiencePercent += getExperiencePercent;
+            curExperience += getExperience;
         }
     }
 }
