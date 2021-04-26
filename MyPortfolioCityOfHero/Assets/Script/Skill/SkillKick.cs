@@ -20,13 +20,14 @@ public class SkillKick : SkillDataBase
         skillNumber = 1;
         isRotateSkill = true;
         skillName = "Skill_Kick";
-        needPreviousSkillName = "Skill_NormalPunch";
+        needPrecedingSkillName = "Skill_NormalPunch";
         iconImage = GetComponent<Image>();
         //iconImage.sprite = Resources.Load<Sprite>("Icon/S_divine");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 20.0f;
         dist = 1.5f;
+        skillStep = 2;
     }
 
     private void Update()

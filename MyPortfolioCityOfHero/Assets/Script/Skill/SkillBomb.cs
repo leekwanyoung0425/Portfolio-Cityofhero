@@ -21,13 +21,14 @@ public class SkillBomb : SkillDataBase
         skillNumber = 3;
         isRotateSkill = true;
         skillName = "Skill_Bomb";
-        needPreviousSkillName = "Skill_MagicFire";
+        needPrecedingSkillName = "Skill_MagicFire";
         iconImage = GetComponent<Image>();
         //iconImage.sprite = Resources.Load<Sprite>("Icon/S_Green_invade");
         coolDownTime = 5.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 15.0f;
         isNonTargetSkill = true;
+        skillStep = 3;
     }
 
     private void Update()

@@ -7,7 +7,7 @@ public abstract class SkillDataBase : MonoBehaviour
 {
     public int skillNumber;
     public string skillName = "";
-    public string needPreviousSkillName = "";
+    public string needPrecedingSkillName = "";
     public Image iconImage = null;
     public float coolDownTime = 0.0f;
     public bool isCoolDown = false;
@@ -17,6 +17,7 @@ public abstract class SkillDataBase : MonoBehaviour
     public bool isRotateSkill;
     public float dist = 0.0f;
     public bool isNonTargetSkill = false;
+    public int skillStep = 0;
     public abstract void SkillAnim();
     public abstract void CoolDown();
 }

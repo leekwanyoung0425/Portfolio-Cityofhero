@@ -26,13 +26,14 @@ public class SkillMagicFire : SkillDataBase
         skillNumber = 2;
         isRotateSkill = true;
         skillName = "Skill_MagicFire";
-        needPreviousSkillName = "Skill_NormalPunch";
+        needPrecedingSkillName = "Skill_NormalPunch";
         iconImage = gameObject.GetComponent<Image>();
         //iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 30.0f;
         dist = 15.0f;
+        skillStep = 2;
     }
 
     private void Update()

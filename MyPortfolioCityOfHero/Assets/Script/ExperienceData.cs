@@ -41,11 +41,11 @@ public class ExperienceData : MonoBehaviour
     {
         float exp =0.0f;
 
-        foreach(KeyValuePair<int, float> levelData in experience)
+        foreach(int levelData in experience.Keys)
         {
-            if(levelData.Key == level)
+            if(levelData == level)
             {
-                exp = levelData.Value;
+                exp = levelData;
                 break;
             }
         }

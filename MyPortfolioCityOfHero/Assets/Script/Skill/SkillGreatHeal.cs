@@ -8,7 +8,8 @@ public class SkillGreatHeal : SkillDataBase
     void Start()
     {
         skillName = "Skill_GreatHeal";
-        needPreviousSkillName = "Skill_Kick";
+        needPrecedingSkillName = "Skill_Kick";
+        skillStep = 3;
     }
 
     // Update is called once per frame
