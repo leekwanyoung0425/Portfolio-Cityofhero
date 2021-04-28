@@ -131,50 +131,53 @@ public class PlayerControl : CharacterMovement
 
     void AttackCheck(int inputSlotNum)
     {
-        SkillDataBase skilldata;
-        skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
-        isCoolDown = skilldata.isCoolDown;
-        float dist = 0.0f;
-        
-        if (targetSelect.GetselectTarget != null)dist = (this.transform.position - targetSelect.GetselectTarget.position).magnitude;
- 
-        isPossibleAttackDist = skilldata.dist >= dist ? true : false;
+        if (SlotData.GetInstance().slots[inputSlotNum].transform.childCount > 0)
+        {
+            SkillDataBase skilldata;
+            skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
+            isCoolDown = skilldata.isCoolDown;
+            float dist = 0.0f;
 
-        if (skilldata.isNonTargetSkill)
-        {
-            if (!isCoolDown && iscurAnimEnd)
+            if (targetSelect.GetselectTarget != null) dist = (this.transform.position - targetSelect.GetselectTarget.position).magnitude;
+
+            isPossibleAttackDist = skilldata.dist >= dist ? true : false;
+
+            if (skilldata.isNonTargetSkill)
             {
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
-                playerAttack.SkillInit();
-            }
-            else
-            {
-                StartCoroutine(AttackAlertText());
-            }
-        }
-        else
-        {
-            if (skilldata != null && !isCoolDown && targetSelect.GetselectTarget != null && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isPossibleAttackDist && iscurAnimEnd)
-            {
-                ChangeState(STATE.ATTACK);
-                curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
-                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
-                if (curCastingSkill.isRotateSkill)
+                if (!isCoolDown && iscurAnimEnd)
                 {
-                    playerAttack.AttackReady();
+                    ChangeState(STATE.ATTACK);
+                    curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
+                    SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                    playerAttack.SkillInit();
                 }
                 else
                 {
-                    playerAttack.SkillInit();
+                    StartCoroutine(AttackAlertText());
                 }
             }
             else
             {
-                StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget.gameObject.layer, isPossibleAttackDist));
+                if (skilldata != null && !isCoolDown && targetSelect.GetselectTarget != null && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isPossibleAttackDist && iscurAnimEnd)
+                {
+                    ChangeState(STATE.ATTACK);
+                    curCastingSkill = skilldata;
+                    SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                    if (curCastingSkill.isRotateSkill)
+                    {
+                        playerAttack.AttackReady();
+                    }
+                    else
+                    {
+                        playerAttack.SkillInit();
+                    }
+                }
+                else
+                {
+                    StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget.gameObject.layer, isPossibleAttackDist));
+                }
             }
-        }                     
+        }                   
     }
 
     void OnCollisionEnter(Collision other)

@@ -11,18 +11,9 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
     Transform setParent;
     GameObject skill = null;
     Image skillImage;
-    public GameObject curParentObj;
+    public GameObject curParentObj = null;
     // Start is called before the first frame update
-    private static SkillDrag instance;
-    public static SkillDrag GetInstance()
-    {
-        if (instance == null)
-        {
-            instance = FindObjectOfType<SkillDrag>();
-        }
 
-        return instance;
-    }
     void Start()
     {
     }
@@ -49,6 +40,7 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
             if (PlayerSkillData.GetInstance().IsAlreadyLearn(this.gameObject.GetComponent<SkillDataBase>()))
             {
                 curParentObj = this.gameObject.transform.parent.gameObject;
+
                 if (this.gameObject.GetComponentInParent<Slot>() == null)
                 {
                     skill = Instantiate(this.gameObject, canvas.transform);

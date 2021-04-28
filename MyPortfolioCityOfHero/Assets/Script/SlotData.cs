@@ -34,6 +34,8 @@ public class SlotData : MonoBehaviour
 
     public void SlotRenewal()
     {
+        //Debug.Log("리뉴얼");
+        skills.Clear();
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i].transform.childCount > 0)
@@ -41,6 +43,11 @@ public class SlotData : MonoBehaviour
                 skills.Add(slots[i].transform.GetChild(0).GetComponent<SkillDataBase>());
             }
         }
+
+        //foreach(SkillDataBase test in skills)
+        //{
+        //    Debug.Log(test.gameObject.name);
+        //}
     }
 
     public void SkillUseReady(int num, GameObject caster, Transform target)
