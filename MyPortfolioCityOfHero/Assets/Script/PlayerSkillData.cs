@@ -50,7 +50,9 @@ public class PlayerSkillData : MonoBehaviour
             --skillPoint;
             skillPointText.text = skillPoint.ToString();
             playerSkillData.Add(skillData.skillName, skillData);
-            skillObj.GetComponent<Image>().color = new Color(1, 1, 1);
+            Color col = skillObj.GetComponent<Image>().color;
+            col.a = 1;
+            skillObj.GetComponent<Image>().color = col;
             skillObj.GetComponent<Button>().enabled = false;
             skillListUI.LineDrawEffect(skillData.skillStep);
 
@@ -78,5 +80,16 @@ public class PlayerSkillData : MonoBehaviour
             if (precedingSkill == skillData.needPrecedingSkillName) return possible = true;
         }
         return possible;
+    }
+
+    public bool IsAlreadyLearn(SkillDataBase skillData)
+    {
+        bool alreadyLearn = false;
+
+        foreach (string skillName in playerSkillData.Keys)
+        {
+            if (skillName == skillData.skillName) return alreadyLearn = true;
+        }
+        return alreadyLearn;
     }
 }

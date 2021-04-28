@@ -24,7 +24,6 @@ public class SkillListUI : MonoBehaviour
 
     public void LineDrawEffect(int skillStep)
     {
-        Debug.Log(LeftRightSelect);
         switch(LeftRightSelect)
         {
             case 1:

@@ -562,3 +562,5 @@ E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Debug\Assembly
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Debug\Assembly-CSharp.dll
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Debug\Assembly-CSharp.pdb
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Debug\Unity.2D.Sprite.Editor.dll
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Debug\Unity.2D.Sprite.Editor.pdb

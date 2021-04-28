@@ -8,18 +8,23 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
 {
     Vector3 prePos;
     public Canvas canvas;
-    List<RaycastResult> skillData;
-    GraphicRaycaster gr;
-    PointerEventData ped;
     Transform setParent;
-    GameObject skill;
+    GameObject skill = null;
     Image skillImage;
+    public GameObject curParentObj;
     // Start is called before the first frame update
+    private static SkillDrag instance;
+    public static SkillDrag GetInstance()
+    {
+        if (instance == null)
+        {
+            instance = FindObjectOfType<SkillDrag>();
+        }
+
+        return instance;
+    }
     void Start()
     {
-        gr = canvas.GetComponent<GraphicRaycaster>();
-        ped = new PointerEventData(null);
-        skillData = new List<RaycastResult>();
     }
 
     // Update is called once per frame
@@ -29,7 +34,7 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-
+       
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -39,26 +44,55 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-       skill = Instantiate(this.gameObject, canvas.transform);
-       skill.transform.position = eventData.position;
-       skillImage = skill.GetComponent<Image>();
-       skillImage.raycastTarget = false;
-       prePos = eventData.position;
-       eventData.selectedObject = skill;
-        
+        if (this.gameObject.GetComponent<SkillDataBase>() != null)
+        {
+            if (PlayerSkillData.GetInstance().IsAlreadyLearn(this.gameObject.GetComponent<SkillDataBase>()))
+            {
+                curParentObj = this.gameObject.transform.parent.gameObject;
+                if (this.gameObject.GetComponentInParent<Slot>() == null)
+                {
+                    skill = Instantiate(this.gameObject, canvas.transform);
+                    skill.transform.position = eventData.position;
+                    skill.GetComponent<Image>().raycastTarget = false;
+                    prePos = eventData.position;
+                    eventData.selectedObject = skill;
+                }
+                else
+                {
+                    skill = this.gameObject;
+                    skill.transform.SetParent(canvas.transform);
+                    skill.transform.position = eventData.position;
+                    skill.GetComponent<Image>().raycastTarget = false;
+                    prePos = eventData.position;
+                    eventData.selectedObject = skill;
+                }
+            }
+        }
     }
     public void OnDrag(PointerEventData eventData)
     {
-      Vector3 dir = (Vector3)eventData.position - prePos;
-      skill.transform.Translate(dir);
-      prePos = eventData.position;  
+        if (skill != null)
+        {
+            Vector3 dir = (Vector3)eventData.position - prePos;
+            skill.transform.Translate(dir);
+            prePos = eventData.position;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (skill != null)
+        {
+            if (skill.transform.parent.GetComponent<Slot>() == null)
+            {
+                Destroy(skill);
+            }
+            else
+            {
+                skill.GetComponent<Image>().raycastTarget = true;
+            }
+        }
  
-            skillImage.raycastTarget = true;
-            Destroy(skill);
     }
 
     public void OnPointerUp(PointerEventData eventData)
