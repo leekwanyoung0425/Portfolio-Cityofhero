@@ -44,7 +44,8 @@ public class SkillNormalPunch : SkillDataBase
 
     IEnumerator CoolDownInit(float coolDownTime)
     {
-        isCoolDown = true;
+        size = this.transform.parent.GetComponent<RectTransform>();
+        isCoolDown = true;       
         size.localScale = new Vector3(0.3f, 0.3f, 0.0f);
         float delta = 0.0f;
         float startTime = 0.0f;

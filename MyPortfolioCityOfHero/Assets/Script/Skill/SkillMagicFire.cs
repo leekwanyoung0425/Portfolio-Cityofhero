@@ -64,6 +64,7 @@ public class SkillMagicFire : SkillDataBase
 
     IEnumerator CoolDownInit(float coolDownTime)
     {
+        size = this.transform.parent.GetComponent<RectTransform>();
         isCoolDown = true;
         size.localScale = new Vector3(0.3f, 0.3f, 0.0f);
         float delta = 0.0f;

@@ -33,56 +33,59 @@ public class Slot : MonoBehaviour, IDropHandler
 
         parentObj = skillData.GetComponent<SkillDrag>().curParentObj;
 
-        if (skillData.GetComponent<SkillDataBase>() != null)
-        {
-            if(parentObj.GetComponent<Slot>() == null && childObj == null)
+
+            if (skillData.GetComponent<SkillDataBase>() != null)
             {
-                bool skillOverlapChk = false;
-                GameObject alreadySkillinslot=null;
-                foreach(SkillDataBase skill in SlotData.GetInstance().skills)
+                if (parentObj.GetComponent<Slot>() == null && childObj == null)
                 {
-                    if (skill.skillName == skillData.GetComponent<SkillDataBase>().skillName)
+                    bool skillOverlapChk = false;
+                    GameObject alreadySkillinslot = null;
+                    foreach (GameObject skill in SlotData.GetInstance().slots)
                     {
-                        alreadySkillinslot = skill.gameObject;
-                        skillOverlapChk = true;
-                        break;
+                        if (skill.transform.childCount > 0)
+                        {
+                            if (skill.GetComponentInChildren<SkillDataBase>().skillName == skillData.GetComponent<SkillDataBase>().skillName)
+                            {
+                                alreadySkillinslot = skill.gameObject;
+                                skillOverlapChk = true;
+                                break;
+                            }
+                        }
                     }
+
+                    if (skillOverlapChk)
+                    {
+                        skillData.transform.SetParent(this.gameObject.transform);
+                        skillData.transform.localPosition = Vector3.zero;
+                        Destroy(alreadySkillinslot);
+                    }
+                    else
+                    {
+                        skillData.transform.SetParent(this.gameObject.transform);
+                        skillData.transform.localPosition = Vector3.zero;
+                    }
+
                 }
-                
-                if(skillOverlapChk)
+                else if (parentObj.GetComponent<Slot>() == null && childObj != null)
+                {
+                    Destroy(childObj);
+                    skillData.transform.SetParent(this.gameObject.transform);
+                    skillData.transform.localPosition = Vector3.zero;
+                }
+                else if (parentObj.GetComponent<Slot>() != null && childObj == null)
                 {
                     skillData.transform.SetParent(this.gameObject.transform);
                     skillData.transform.localPosition = Vector3.zero;
-                    Destroy(alreadySkillinslot);
                 }
-                else
+                else if (parentObj.GetComponent<Slot>() != null && childObj != null)
                 {
+                    childObj.transform.SetParent(parentObj.transform);
+                    childObj.transform.localPosition = Vector3.zero;
                     skillData.transform.SetParent(this.gameObject.transform);
                     skillData.transform.localPosition = Vector3.zero;
                 }
 
-            }
-            else if(parentObj.GetComponent<Slot>() == null && childObj != null)
-            {
-                Destroy(childObj);
-                skillData.transform.SetParent(this.gameObject.transform);
-                skillData.transform.localPosition = Vector3.zero;
-            }
-            else if(parentObj.GetComponent<Slot>() != null && childObj == null)
-            {
-                skillData.transform.SetParent(this.gameObject.transform);
-                skillData.transform.localPosition = Vector3.zero;
-            }
-            else if (parentObj.GetComponent<Slot>() != null && childObj != null)
-            {
-                childObj.transform.SetParent(parentObj.transform);
-                childObj.transform.localPosition = Vector3.zero;
-                skillData.transform.SetParent(this.gameObject.transform);
-                skillData.transform.localPosition = Vector3.zero;
-            }
-
-            SlotData.GetInstance().SlotRenewal();
-        }
+            }       
         else
         {
             Destroy(eventData.selectedObject);

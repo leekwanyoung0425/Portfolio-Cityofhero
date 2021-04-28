@@ -147,7 +147,7 @@ public class PlayerControl : CharacterMovement
                 if (!isCoolDown && iscurAnimEnd)
                 {
                     ChangeState(STATE.ATTACK);
-                    curCastingSkill = SlotData.GetInstance().skills[inputSlotNum].GetComponent<SkillDataBase>();
+                    curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
                     SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
                     playerAttack.SkillInit();
                 }
