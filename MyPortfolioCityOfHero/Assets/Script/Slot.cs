@@ -33,7 +33,8 @@ public class Slot : MonoBehaviour, IDropHandler
 
         parentObj = skillData.GetComponent<SkillDrag>().curParentObj;
 
-
+        if (skillData.GetComponent<SkillDrag>().isDrag)
+        {
             if (skillData.GetComponent<SkillDataBase>() != null)
             {
                 if (parentObj.GetComponent<Slot>() == null && childObj == null)
@@ -85,10 +86,7 @@ public class Slot : MonoBehaviour, IDropHandler
                     skillData.transform.localPosition = Vector3.zero;
                 }
 
-            }       
-        else
-        {
-            Destroy(eventData.selectedObject);
+            }
         }
     }
 

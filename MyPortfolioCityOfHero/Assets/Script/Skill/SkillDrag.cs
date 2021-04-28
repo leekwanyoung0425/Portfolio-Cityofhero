@@ -12,6 +12,7 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
     GameObject skill = null;
     Image skillImage;
     public GameObject curParentObj = null;
+    public bool isDrag = false;
     // Start is called before the first frame update
 
     void Start()
@@ -39,6 +40,7 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
         {
             if (PlayerSkillData.GetInstance().IsAlreadyLearn(this.gameObject.GetComponent<SkillDataBase>()))
             {
+                isDrag = true;
                 curParentObj = this.gameObject.transform.parent.gameObject;
 
                 if (this.gameObject.GetComponentInParent<Slot>() == null)
@@ -84,7 +86,8 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
                 skill.GetComponent<Image>().raycastTarget = true;
             }
         }
- 
+
+        isDrag = false;
     }
 
     public void OnPointerUp(PointerEventData eventData)
