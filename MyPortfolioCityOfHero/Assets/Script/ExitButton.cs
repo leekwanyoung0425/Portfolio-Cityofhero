@@ -5,7 +5,7 @@ using UnityEngine;
 public class ExitButton : MonoBehaviour
 {
     // Start is called before the first frame update
-    public GameObject exitWIndow;
+    public GameObject window;
     void Start()
     {
         
@@ -19,6 +19,6 @@ public class ExitButton : MonoBehaviour
 
     public void ExitButtonClick()
     {
-        exitWIndow.SetActive(false);
+        window.SetActive(false);
     }
 }

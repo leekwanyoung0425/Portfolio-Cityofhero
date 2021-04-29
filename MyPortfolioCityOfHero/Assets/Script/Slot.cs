@@ -21,8 +21,11 @@ public class Slot : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
+
         skillData = eventData.selectedObject;
-        GameObject childObj = null;
+        if (skillData == null) return;
+           
+        GameObject childObj = null;         
         GameObject parentObj;
 
         if (this.gameObject.transform.childCount > 0)
@@ -31,63 +34,68 @@ public class Slot : MonoBehaviour, IDropHandler
         }
 
 
-        parentObj = skillData.GetComponent<SkillDrag>().curParentObj;
+            parentObj = skillData.GetComponent<SkillDrag>().curParentObj;
 
-        if (skillData.GetComponent<SkillDrag>().isDrag)
-        {
-            if (skillData.GetComponent<SkillDataBase>() != null)
-            {
-                if (parentObj.GetComponent<Slot>() == null && childObj == null)
+            //if (skillData.GetComponent<SkillDrag>().isDrag)
+            //{
+                if (skillData.GetComponent<SkillDataBase>() != null)
                 {
-                    bool skillOverlapChk = false;
-                    GameObject alreadySkillinslot = null;
-                    foreach (GameObject skill in SlotData.GetInstance().slots)
+                    if (parentObj.GetComponent<Slot>() == null && childObj == null)
                     {
-                        if (skill.transform.childCount > 0)
+                    Debug.Log("들1");
+                        bool skillOverlapChk = false;
+                        GameObject alreadySkillinslot = null;
+                        foreach (GameObject skill in SlotData.GetInstance().slots)
                         {
-                            if (skill.GetComponentInChildren<SkillDataBase>().skillName == skillData.GetComponent<SkillDataBase>().skillName)
+                            if (skill.transform.childCount > 0)
                             {
-                                alreadySkillinslot = skill.gameObject;
-                                skillOverlapChk = true;
-                                break;
+                                if (skill.GetComponentInChildren<SkillDataBase>().skillName == skillData.GetComponent<SkillDataBase>().skillName)
+                                {
+                                    alreadySkillinslot = skill.gameObject.transform.GetChild(0).gameObject;
+                                    skillOverlapChk = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (skillOverlapChk)
-                    {
-                        skillData.transform.SetParent(this.gameObject.transform);
-                        skillData.transform.localPosition = Vector3.zero;
-                        Destroy(alreadySkillinslot);
-                    }
-                    else
-                    {
-                        skillData.transform.SetParent(this.gameObject.transform);
-                        skillData.transform.localPosition = Vector3.zero;
-                    }
+                        if (skillOverlapChk)
+                        {
+                            skillData.transform.SetParent(this.gameObject.transform);
+                            skillData.transform.localPosition = Vector3.zero;
+                            Destroy(alreadySkillinslot);
+                        }
+                        else
+                        {
+                            skillData.transform.SetParent(this.gameObject.transform);
+                            skillData.transform.localPosition = Vector3.zero;
+                        }
 
-                }
-                else if (parentObj.GetComponent<Slot>() == null && childObj != null)
-                {
+                    }
+                    else if (parentObj.GetComponent<Slot>() == null && childObj != null)
+                    {
+                    Debug.Log("들2");
                     Destroy(childObj);
+                        skillData.transform.SetParent(this.gameObject.transform);
+                        skillData.transform.localPosition = Vector3.zero;
+                    }
+                    else if (parentObj.GetComponent<Slot>() != null && childObj == null)
+                    {
+                    Debug.Log("들3");
                     skillData.transform.SetParent(this.gameObject.transform);
-                    skillData.transform.localPosition = Vector3.zero;
-                }
-                else if (parentObj.GetComponent<Slot>() != null && childObj == null)
-                {
-                    skillData.transform.SetParent(this.gameObject.transform);
-                    skillData.transform.localPosition = Vector3.zero;
-                }
-                else if (parentObj.GetComponent<Slot>() != null && childObj != null)
-                {
+                        skillData.transform.localPosition = Vector3.zero;
+                    }
+                    else if (parentObj.GetComponent<Slot>() != null && childObj != null)
+                    {
+                    Debug.Log("들4");
                     childObj.transform.SetParent(parentObj.transform);
-                    childObj.transform.localPosition = Vector3.zero;
-                    skillData.transform.SetParent(this.gameObject.transform);
-                    skillData.transform.localPosition = Vector3.zero;
-                }
+                        childObj.transform.localPosition = Vector3.zero;
+                        skillData.transform.SetParent(this.gameObject.transform);
+                        skillData.transform.localPosition = Vector3.zero;
+                    }
 
-            }
-        }
+                }
+            //}
+        
     }
 
 }

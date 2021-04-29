@@ -32,7 +32,7 @@ public class PlayerSkillData : MonoBehaviour
         playerSkillData = new Dictionary<string, SkillDataBase>();
         skillPoint = 1;
         skillPointText.text = skillPoint.ToString();
-        playerSkillData.Add(test.skillName, test);
+        playerSkillData.Add("Skill_NormalPunch", test);
     }
 
     // Update is called once per frame
@@ -77,8 +77,10 @@ public class PlayerSkillData : MonoBehaviour
         
         foreach(string precedingSkill in playerSkillData.Keys)
         {
+            Debug.Log(precedingSkill);
             if (precedingSkill == skillData.needPrecedingSkillName) return possible = true;
         }
+
         return possible;
     }
 

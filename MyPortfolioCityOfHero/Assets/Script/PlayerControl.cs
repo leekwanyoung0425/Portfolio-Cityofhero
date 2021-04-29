@@ -25,7 +25,6 @@ public class PlayerControl : CharacterMovement
     public bool isPossibleAttackDist = false;
     public bool isCoolDown = false;
 
-
    public Transform headTr;
     public TMPro.TMP_Text textPrefab;
     Canvas canvas;

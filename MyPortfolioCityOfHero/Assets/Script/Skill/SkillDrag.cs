@@ -12,7 +12,7 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
     GameObject skill = null;
     Image skillImage;
     public GameObject curParentObj = null;
-    public bool isDrag = false;
+    //public bool isDrag = false;
     // Start is called before the first frame update
 
     void Start()
@@ -36,58 +36,75 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (this.gameObject.GetComponent<SkillDataBase>() != null)
+        if (Input.GetKey(KeyCode.Mouse0))
         {
-            if (PlayerSkillData.GetInstance().IsAlreadyLearn(this.gameObject.GetComponent<SkillDataBase>()))
-            {
-                isDrag = true;
-                curParentObj = this.gameObject.transform.parent.gameObject;
+            eventData.pointerDrag.GetComponent<Button>().enabled = false;
+            SkillDataBase skillData = eventData.pointerDrag.GetComponent<SkillDataBase>();
 
-                if (this.gameObject.GetComponentInParent<Slot>() == null)
+            if (skillData != null)
+            {
+                if (PlayerSkillData.GetInstance().IsAlreadyLearn(skillData))
                 {
-                    skill = Instantiate(this.gameObject, canvas.transform);
-                    skill.transform.position = eventData.position;
-                    skill.GetComponent<Image>().raycastTarget = false;
-                    prePos = eventData.position;
-                    eventData.selectedObject = skill;
-                }
-                else
-                {
-                    skill = this.gameObject;
-                    skill.transform.SetParent(canvas.transform);
-                    skill.transform.position = eventData.position;
-                    skill.GetComponent<Image>().raycastTarget = false;
-                    prePos = eventData.position;
-                    eventData.selectedObject = skill;
+                    //isDrag = true;
+                    curParentObj = eventData.pointerDrag.transform.parent.gameObject;
+
+                    if (eventData.pointerDrag.GetComponentInParent<Slot>() == null)
+                    {
+                        skill = Instantiate(eventData.pointerDrag, canvas.transform);
+                        skill.transform.position = eventData.pointerDrag.transform.position;
+                        skill.GetComponent<Image>().raycastTarget = false;
+                        prePos = eventData.pointerDrag.transform.position;
+                        eventData.selectedObject = skill;
+                    }
+                    else
+                    {
+                        skill = eventData.pointerDrag;
+                        skill.transform.SetParent(canvas.transform);
+                        skill.transform.position = eventData.position;
+                        skill.GetComponent<Image>().raycastTarget = false;
+                        prePos = eventData.position;
+                        eventData.selectedObject = skill;
+                    }
                 }
             }
         }
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (skill != null)
+        if (Input.GetKey(KeyCode.Mouse0))
         {
-            Vector3 dir = (Vector3)eventData.position - prePos;
-            skill.transform.Translate(dir);
-            prePos = eventData.position;
-        }
+           if (skill != null)
+           {
+               Vector3 dir = (Vector3)eventData.position - prePos;
+               skill.transform.Translate(dir);
+               prePos = eventData.position;
+           }
+         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (skill != null)
+        if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            if (skill.transform.parent.GetComponent<Slot>() == null)
+            if (skill != null)
             {
-                Destroy(skill);
+                if (skill.transform.parent.GetComponent<Slot>() == null)
+                {
+                    Destroy(skill);
+                }
+                else
+                {
+                    skill.GetComponent<Image>().raycastTarget = true;
+                }
             }
             else
             {
-                skill.GetComponent<Image>().raycastTarget = true;
+                eventData.pointerDrag.GetComponent<Button>().enabled = true;
             }
         }
 
-        isDrag = false;
+            //isDrag = false;
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
