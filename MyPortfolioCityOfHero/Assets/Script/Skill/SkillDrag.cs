@@ -38,16 +38,15 @@ public class SkillDrag : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler
     {
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            eventData.pointerDrag.GetComponent<Button>().enabled = false;
             SkillDataBase skillData = eventData.pointerDrag.GetComponent<SkillDataBase>();
 
             if (skillData != null)
             {
+                eventData.pointerDrag.GetComponent<Button>().enabled = false;
+                curParentObj = eventData.pointerDrag.transform.parent.gameObject;
                 if (PlayerSkillData.GetInstance().IsAlreadyLearn(skillData))
                 {
-                    //isDrag = true;
-                    curParentObj = eventData.pointerDrag.transform.parent.gameObject;
-
+                  
                     if (eventData.pointerDrag.GetComponentInParent<Slot>() == null)
                     {
                         skill = Instantiate(eventData.pointerDrag, canvas.transform);

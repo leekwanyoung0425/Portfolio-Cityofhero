@@ -24,6 +24,11 @@ public class Slot : MonoBehaviour, IDropHandler
 
         skillData = eventData.selectedObject;
         if (skillData == null) return;
+        else
+        {
+            SkillDataBase skillData = eventData.selectedObject.GetComponent<SkillDataBase>();
+            if (!PlayerSkillData.GetInstance().IsAlreadyLearn(skillData)) return;
+        }
            
         GameObject childObj = null;         
         GameObject parentObj;
@@ -35,14 +40,11 @@ public class Slot : MonoBehaviour, IDropHandler
 
 
             parentObj = skillData.GetComponent<SkillDrag>().curParentObj;
-
-            //if (skillData.GetComponent<SkillDrag>().isDrag)
-            //{
+  
                 if (skillData.GetComponent<SkillDataBase>() != null)
                 {
                     if (parentObj.GetComponent<Slot>() == null && childObj == null)
                     {
-                    Debug.Log("들1");
                         bool skillOverlapChk = false;
                         GameObject alreadySkillinslot = null;
                         foreach (GameObject skill in SlotData.GetInstance().slots)
@@ -73,29 +75,25 @@ public class Slot : MonoBehaviour, IDropHandler
                     }
                     else if (parentObj.GetComponent<Slot>() == null && childObj != null)
                     {
-                    Debug.Log("들2");
+ 
                     Destroy(childObj);
                         skillData.transform.SetParent(this.gameObject.transform);
                         skillData.transform.localPosition = Vector3.zero;
                     }
                     else if (parentObj.GetComponent<Slot>() != null && childObj == null)
                     {
-                    Debug.Log("들3");
                     skillData.transform.SetParent(this.gameObject.transform);
                         skillData.transform.localPosition = Vector3.zero;
                     }
                     else if (parentObj.GetComponent<Slot>() != null && childObj != null)
                     {
-                    Debug.Log("들4");
                     childObj.transform.SetParent(parentObj.transform);
                         childObj.transform.localPosition = Vector3.zero;
                         skillData.transform.SetParent(this.gameObject.transform);
                         skillData.transform.localPosition = Vector3.zero;
                     }
 
-                }
-            //}
-        
+                }                 
     }
 
 }
