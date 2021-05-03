@@ -422,6 +422,7 @@ public class MonsterState : MonoBehaviour
 
     public void MonsterDead()
     {
+        ItemManager.GetInstance().GetItem(mydata.DropItems);
         myAnim.SetTrigger("Die");
         isDead = true;
         this.transform.parent.gameObject.layer = 10;

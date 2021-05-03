@@ -77,7 +77,6 @@ public class PlayerSkillData : MonoBehaviour
         
         foreach(string precedingSkill in playerSkillData.Keys)
         {
-            Debug.Log(precedingSkill);
             if (precedingSkill == skillData.needPrecedingSkillName) return possible = true;
         }
 

@@ -136,7 +136,6 @@ public class PlayerControl : CharacterMovement
             skilldata = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
             isCoolDown = skilldata.isCoolDown;
             float dist = 0.0f;
-
             if (targetSelect.GetselectTarget != null) dist = (this.transform.position - targetSelect.GetselectTarget.position).magnitude;
 
             isPossibleAttackDist = skilldata.dist >= dist ? true : false;
@@ -173,7 +172,7 @@ public class PlayerControl : CharacterMovement
                 }
                 else
                 {
-                    StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget.gameObject.layer, isPossibleAttackDist));
+                    StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget, isPossibleAttackDist));
                 }
             }
         }                   
@@ -186,7 +185,7 @@ public class PlayerControl : CharacterMovement
 
   
 
-    IEnumerator AttackAlertText(SkillDataBase slotdata, bool isCoolDown, LayerMask layer, bool isPossibleAttackDist)
+    IEnumerator AttackAlertText(SkillDataBase slotdata, bool isCoolDown, Transform target, bool isPossibleAttackDist)
     {
         Vector3 textpos = Camera.main.WorldToScreenPoint(headTr.position);
         textpos.x -= halfsize.x;
@@ -206,11 +205,14 @@ public class PlayerControl : CharacterMovement
         {
             attackAlertText.text = "재사용 대기중입니다.";
         }
-        else if(layer != LayerMask.NameToLayer("Monster"))
+        else if(target ==null)
+        {
+            attackAlertText.text = "공격할 대상이 없습니다.";
+        }
+        else if(target.gameObject.layer != LayerMask.NameToLayer("Monster"))
         {
             attackAlertText.text = "공격 대상이 아닙니다.";
         }
-
         else if(!isPossibleAttackDist)
         {
             attackAlertText.text = "적이 너무 멀리있습니다.";

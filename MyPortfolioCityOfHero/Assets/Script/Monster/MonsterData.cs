@@ -16,11 +16,13 @@ public class MonsterData : MonoBehaviour
     float CurHp;
     Vector3 respawnPos;
     Vector3 respawnDir;
+    List<int> holdItemID = new List<int>();
 
     public string GetName { get { return MonsterName; } }
     public float GetMaxHp { get { return MaxHp; }}
     public float GetCurHp { get { return CurHp; } set { CurHp = value; } }
     public Vector3 GetPos { get { return respawnPos; } }
+    public List<int> DropItems { get { return holdItemID; } }
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +32,8 @@ public class MonsterData : MonoBehaviour
         CurHp = _monsterData.HP;
         respawnPos = _monsterData.BaseRespawnPos;
         respawnDir = transform.forward;
+        DropItems.Add(1001);
+        DropItems.Add(2001);
     }
 
     // Update is called once per frame

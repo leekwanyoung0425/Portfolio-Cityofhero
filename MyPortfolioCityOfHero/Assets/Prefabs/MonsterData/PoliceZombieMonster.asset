@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Index: 1
   MonsterName: "\uAC10\uC5FC\uB41C \uACBD\uCC30\uAD00"
-  HP: 100
+  HP: 20
   AttackPower: 5
   BaseRespawnPos: {x: 5, y: 0, z: 11.5}

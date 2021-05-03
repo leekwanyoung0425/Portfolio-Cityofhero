@@ -12,8 +12,8 @@ public class PlayerData : MonoBehaviour
     float curExperiencePercent = 0.0f;
     float targetExperience = 0.0f;
     float MaxExperiencePercent = 100.0f;
-    float maxHp = 1000.0f;
-    float curHp = 0.0f;
+    public float maxHp = 1000.0f;
+    public float curHp = 0.0f;
     public TMP_Text playerNameTextPrefab;
     public Slider hpBarPrefab;
     public Transform uiParent;
@@ -21,10 +21,22 @@ public class PlayerData : MonoBehaviour
     public Transform uiPos;
     Vector2 canvasSize;
     TMP_Text text;
-    Slider hpBar;
+    public Slider hpBar;
     TMP_Text damageTexObj;
     public TMP_Text damageTextPrefab;
     public GameObject damageTextParent;
+
+    private static PlayerData instance;
+
+    public static PlayerData GetInstance()
+    {
+        if(instance == null)
+        {
+            instance = FindObjectOfType<PlayerData>();
+        }
+
+        return instance;
+    }
 
     // Start is called before the first frame update
     void Start()
