@@ -53,6 +53,7 @@ public class ChatManager : MonoBehaviour
         {
             ignoreNextReturn = true;
             myTextInput.ActivateInputField();
+            myTextInput.DeactivateInputField();
         }
     }
 
@@ -76,9 +77,8 @@ public class ChatManager : MonoBehaviour
             int index = myTextInput.text.Length;
 
             while (myTextInput.text.Length > 5)
-            {
-                myTextInput.text.Remove(index-1);
-                --index;
+            {                
+                myTextInput.text = myTextInput.text.Substring(0, 5);                
             }
         }
     }
