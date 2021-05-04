@@ -80,9 +80,12 @@ public class PlayerControl : CharacterMovement
         switch (myState)
         {
             case STATE.IDLE:
-                WalkCheck();
-                InputNumber();
-                JumpCheck();
+                if (!ChatManager.GetInstance().ignoreNextReturn)
+                {
+                    WalkCheck();
+                    InputNumber();
+                    JumpCheck();
+                }
                 break;
             case STATE.WALK:
                 base.KeyboardMovePosition(horizontal, vertical);

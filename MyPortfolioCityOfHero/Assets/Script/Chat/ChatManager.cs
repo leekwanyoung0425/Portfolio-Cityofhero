@@ -9,9 +9,20 @@ public class ChatManager : MonoBehaviour
     public Transform trContents;
     public TMP_InputField myTextInput = null;
     public Scrollbar verticalScroll = null;
-    bool ignoreNextReturn = false;
+    public bool ignoreNextReturn = false;
     public GameObject chatItem;
+    public GameObject alert;
+    public TMP_Text alertText;
 
+    private static ChatManager instance;
+    public static ChatManager GetInstance()
+    {
+        if(instance == null)
+        {
+            instance = FindObjectOfType<ChatManager>();
+        }
+        return instance;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -26,10 +37,11 @@ public class ChatManager : MonoBehaviour
         {
             if(ignoreNextReturn)
             {
-                ignoreNextReturn = false;
+                AddChat(myTextInput.text);
             }
             else
             {
+                ignoreNextReturn = true;
                 myTextInput.ActivateInputField();
             }
         }
@@ -49,12 +61,9 @@ public class ChatManager : MonoBehaviour
             myTextInput.ActivateInputField();
             StartCoroutine(SetScrollZeroValue(10.0f));
         }
-        else
-        {
-            ignoreNextReturn = true;
-            myTextInput.ActivateInputField();
-            myTextInput.DeactivateInputField();
-        }
+
+        ignoreNextReturn = false;
+        myTextInput.DeactivateInputField();
     }
 
     IEnumerator SetScrollZeroValue(float speed)
@@ -72,14 +81,11 @@ public class ChatManager : MonoBehaviour
 
     public void TextLengthCheck()
     {
-        if (myTextInput.text.Length > 5)
+        if (myTextInput.text.Length > 10)
         {
-            int index = myTextInput.text.Length;
-
-            while (myTextInput.text.Length > 5)
-            {                
-                myTextInput.text = myTextInput.text.Substring(0, 5);                
-            }
+            alertText.text = "10자 이내로 입력해주세요";
+            alert.SetActive(true);
+            myTextInput.text = myTextInput.text.Substring(0, 10);                        
         }
     }
 }
