@@ -8,7 +8,6 @@ public class CardinalPoints : MonoBehaviour
     public Transform playerTr;
     public Image cardinalPoints;
     public Image selectPoint;
-    public Transform monster;
     Material myMaterial;
     float algle;
     float monsteralgle;
@@ -30,13 +29,12 @@ public class CardinalPoints : MonoBehaviour
             setoffSet -= 1.0f;
         }
         myMaterial.SetTextureOffset("_MainTex", new Vector2(setoffSet,0));
-        SelectPoint();
     }
 
-    public void SelectPoint()
+    public void SelectPoint(Transform selectTarget)
     {
 
-        Vector3 dir = (monster.position- playerTr.position).normalized;
+        Vector3 dir = (selectTarget.position- playerTr.position).normalized;
         float rot = Vector3.Dot(dir, playerTr.forward);
         rot = Mathf.Acos(rot);
         rot = (rot * 180.0f) / Mathf.PI;

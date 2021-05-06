@@ -23,7 +23,7 @@ public class Slot : MonoBehaviour, IDropHandler
     {
 
         iconData = eventData.selectedObject;
-        if (iconData.transform.GetComponent<IconDrag>().isDrag)
+        if (iconData.transform.GetComponent<Ipointer>().isDrag)
         {
             GameObject childObj = null;
             GameObject parentObj;
@@ -32,7 +32,7 @@ public class Slot : MonoBehaviour, IDropHandler
             {
                 childObj = this.gameObject.transform.GetChild(0).gameObject;
             }
-            parentObj = iconData.GetComponent<IconDrag>().curParentObj;
+            parentObj = iconData.GetComponent<Ipointer>().curParentObj;
 
             if (iconData.GetComponent<SkillDataBase>() != null)
             {

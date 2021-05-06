@@ -27,7 +27,7 @@ public class Map : MonoBehaviour
         charPos.x = (platerTr.position.x * 400f) / 350f;
         charPos.y = (platerTr.position.z * 400f) / 350f;
 
-        charRot.z = (platerTr.rotation.y * 180.0f) / Mathf.PI;
+        charRot.z = platerTr.rotation.eulerAngles.y;
         characterPoint.localPosition = charPos;
 
         characterPoint.rotation = Quaternion.Euler(0, 0, charRot.z);
