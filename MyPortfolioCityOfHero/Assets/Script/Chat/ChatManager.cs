@@ -13,6 +13,12 @@ public class ChatManager : MonoBehaviour
     public GameObject chatItem;
     public GameObject alert;
     public TMP_Text alertText;
+    public GameObject chatBubble;
+    Canvas canvas;
+    Vector2 halfsize = Vector2.zero;
+    public Transform uipos;
+    public Transform uiParentpos;
+    GameObject chatbubbleObj =null;
 
     private static ChatManager instance;
     public static ChatManager GetInstance()
@@ -27,43 +33,59 @@ public class ChatManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        canvas = FindObjectOfType<Canvas>();
+        halfsize.x = canvas.pixelRect.width / 2.0f;
+        halfsize.y = canvas.pixelRect.height / 2.0f;
     }
 
     // Update is called once per frame
     void Update()
     {
-     if(Input.GetKeyDown(KeyCode.Return))
+        if (myTextInput.isFocused) ignoreNextReturn = true;
+
+        if (Input.GetKeyDown(KeyCode.Return))
         {
             if(ignoreNextReturn)
             {
-                AddChat(myTextInput.text);
+                AddChat();
             }
             else
             {
                 ignoreNextReturn = true;
-                myTextInput.ActivateInputField();
+                myTextInput.ActivateInputField();               
             }
         }
     }
 
-    public void AddChat(string str)
+    public void AddChat()
     {
-        if(str.Length >0)
+        if(myTextInput.text.Length >0)
         {
             GameObject obj = Instantiate(chatItem);
             obj.transform.SetParent(trContents);
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localScale = Vector3.one;
             ChatItem scp = obj.GetComponent<ChatItem>();
-            scp.SetText(str);
+            scp.SetText(myTextInput.text , PlayerData.GetInstance().playerName);
+
+            if (chatbubbleObj != null) Destroy(chatbubbleObj);
+            chatbubbleObj = Instantiate(chatBubble);
+            chatbubbleObj.transform.SetParent(uiParentpos);
+            Vector3 textpos = Camera.main.WorldToScreenPoint(uipos.position);
+            textpos.x -= halfsize.x;
+            textpos.y -= halfsize.y;
+            textpos.y += 30.0f;
+            chatbubbleObj.transform.localPosition = textpos;
+            chatbubbleObj.GetComponent<ChatBubble>().chatBuuble(myTextInput.text);
+            Destroy(chatbubbleObj, 5.0f);
+
             myTextInput.text = "";
-            myTextInput.ActivateInputField();
             StartCoroutine(SetScrollZeroValue(10.0f));
         }
 
         ignoreNextReturn = false;
         myTextInput.DeactivateInputField();
+
     }
 
     IEnumerator SetScrollZeroValue(float speed)
@@ -81,11 +103,11 @@ public class ChatManager : MonoBehaviour
 
     public void TextLengthCheck()
     {
-        if (myTextInput.text.Length > 10)
+        if (myTextInput.text.Length > 20)
         {
-            alertText.text = "10자 이내로 입력해주세요";
+            alertText.text = "20자 이내로 입력해주세요";
             alert.SetActive(true);
-            myTextInput.text = myTextInput.text.Substring(0, 10);                        
+            myTextInput.text = myTextInput.text.Substring(0, 20);                        
         }
     }
 }

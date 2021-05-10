@@ -31,7 +31,7 @@ public class PlayerControl : CharacterMovement
     Vector2 halfsize = Vector2.zero;
     public SkillDataBase curCastingSkill;
     public PlayerAttack playerAttack;
-
+    public MiniMap icon;
     public bool iscurAnimEnd;
 
     // Start is called before the first frame update
@@ -42,6 +42,7 @@ public class PlayerControl : CharacterMovement
         canvas = FindObjectOfType<Canvas>();
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
+        icon.Setposition(this.transform);
     }
 
     // Update is called once per frame

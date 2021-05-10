@@ -17,3 +17,4 @@ MonoBehaviour:
   HP: 20
   AttackPower: 5
   BaseRespawnPos: {x: 5, y: 0, z: 11.5}
+  Experience: 70

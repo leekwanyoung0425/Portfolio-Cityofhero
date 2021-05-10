@@ -24,10 +24,15 @@ public class Map : MonoBehaviour
     void Update()
     {
 
+        if(Input.GetKeyDown(KeyCode.M))
+        {
+            MapOnOff();
+        }
+
         charPos.x = (platerTr.position.x * 400f) / 350f;
         charPos.y = (platerTr.position.z * 400f) / 350f;
 
-        charRot.z = platerTr.rotation.eulerAngles.y;
+        charRot.z = -(platerTr.rotation.eulerAngles.y);
         characterPoint.localPosition = charPos;
 
         characterPoint.rotation = Quaternion.Euler(0, 0, charRot.z);
@@ -35,19 +40,15 @@ public class Map : MonoBehaviour
         npcPos.x = (npcTr.position.x * 400f) / 350f;
         npcPos.y = (npcTr.position.z * 400f) / 350f;
         npcPoint.localPosition = npcPos;
+        npcPoint.GetComponent<NpcPointClick>().myTr = npcTr;
+
+
+
     }
 
     public void MapOnOff()
     {
-        if (mapOnOff)
-        {
-            mapOnOff = false;
-            mapUI.SetActive(false);
-        }
-        else
-        {
-            mapOnOff = true;
-            mapUI.SetActive(true);
-        }
+       mapOnOff = !mapOnOff;
+       mapUI.SetActive(mapOnOff);
     }
 }

@@ -7,6 +7,8 @@ using UnityEngine;
 public class ExperienceData : MonoBehaviour
 {
     public Dictionary<int, float> experience;
+    public bool isLevelUP = false;
+    public GameObject levelUpObj;
 
     private static ExperienceData instance;
     public static ExperienceData GetInstance()
@@ -22,30 +24,38 @@ public class ExperienceData : MonoBehaviour
     void Start()
     {
         experience = new Dictionary<int, float>();
-        int sum = 50;
 
-        for (int i=0; i<5; i++)
+        float sum = 0.0f;
+        float prevNumValue1;
+        float prevNumValue2;
+
+        experience.Add(1, 50);
+        experience.Add(2, 100);
+
+        for (int i=3; i<10; i++)
         {
-            experience.Add(i + 1, 100 + sum);
-            sum = sum + 50;
+            prevNumValue1 = experience[i-2];
+            prevNumValue2 = experience[i-1];
+            sum = prevNumValue1 + prevNumValue2;
+            experience.Add(i, sum);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        LevelUpEffOn();
     }
 
     public float CheckTargetExperience(int level)
     {
         float exp =0.0f;
 
-        foreach(int levelData in experience.Keys)
+        foreach(KeyValuePair<int,float> levelData in experience)
         {
-            if(levelData == level)
+            if(levelData.Key == level)
             {
-                exp = levelData;
+                exp = levelData.Value;
                 break;
             }
         }
@@ -54,7 +64,7 @@ public class ExperienceData : MonoBehaviour
 
     public int CheckLevel(float curExperience)
     {
-        int level = 0;
+        int level = 1;
         foreach (KeyValuePair<int, float> levelData in experience)
         {
             if (curExperience >= levelData.Value)
@@ -65,5 +75,19 @@ public class ExperienceData : MonoBehaviour
                 return level;
         }
         return level;
+    }
+
+    public void GetExperience(float experience)
+    {
+        PlayerData.GetInstance().GetExperience(experience);
+    }
+
+    void LevelUpEffOn()
+    {
+        if(isLevelUP)
+        {
+            levelUpObj.SetActive(true);
+            isLevelUP = false;
+        }
     }
 }

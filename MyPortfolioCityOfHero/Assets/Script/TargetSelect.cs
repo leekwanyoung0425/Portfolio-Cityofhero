@@ -80,9 +80,9 @@ public class TargetSelect : MonoBehaviour
         hpbar = target.GetComponentInChildren<MonsterState>().myhpbar;
         targetUIGroup.SetActive(true);
         MonsterData targetData = target.GetComponent<MonsterData>();
-        hpbar.maxValue = targetData.GetMaxHp;
-        hpbar.value = targetData.GetCurHp;
-        nameText.text = targetData.GetName;
+        hpbar.maxValue = targetData.MaxHp;
+        hpbar.value = targetData.CurHp;
+        nameText.text = targetData.MonsterName;
         nameText.outlineColor = new Color(255,0,0);
 
         float targetingMaxDistance =  70.0f;
@@ -114,7 +114,7 @@ public class TargetSelect : MonoBehaviour
 
         while (target != null && GetIsSelect)
         {            
-            hpbar.value = targetData.GetCurHp;
+            hpbar.value = targetData.CurHp;
             float dist = (transform.position - target.position).magnitude;
             if (dist >= outRange)
             {            

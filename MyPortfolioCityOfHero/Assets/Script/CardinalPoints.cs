@@ -10,9 +10,9 @@ public class CardinalPoints : MonoBehaviour
     public Image selectPoint;
     Material myMaterial;
     float algle;
-    float monsteralgle;
     float setoffSet;
-    float monstersetoffSet;
+    float targetsetoffSet;
+    public bool isSelect = false;
 
     void Start()
     {
@@ -33,19 +33,27 @@ public class CardinalPoints : MonoBehaviour
 
     public void SelectPoint(Transform selectTarget)
     {
+        StartCoroutine(PointCheck(selectTarget));
+    }
 
-        Vector3 dir = (selectTarget.position- playerTr.position).normalized;
-        float rot = Vector3.Dot(dir, playerTr.forward);
-        rot = Mathf.Acos(rot);
-        rot = (rot * 180.0f) / Mathf.PI;
-
-        if (Vector3.Dot(playerTr.right, dir) < 0.0f)
+    IEnumerator PointCheck(Transform selectTarget)
+    {
+        while(isSelect)
         {
-            rot *= -1.0f;
-        }
+            Vector3 dir = (selectTarget.position - playerTr.position).normalized;
+            float rot = Vector3.Dot(dir, playerTr.forward);
+            rot = Mathf.Acos(rot);
+            rot = (rot * 180.0f) / Mathf.PI;
 
-        monstersetoffSet = (400f*rot)/180f + 0.94f;
-        
-        selectPoint.rectTransform.localPosition = new Vector2(monstersetoffSet, 0);
+            if (Vector3.Dot(playerTr.right, dir) < 0.0f)
+            {
+                rot *= -1.0f;
+            }
+
+            targetsetoffSet = (400f * rot) / 180f + 0.94f;
+
+            selectPoint.rectTransform.localPosition = new Vector2(targetsetoffSet, 0);
+            yield return null;
+        }
     }
 }

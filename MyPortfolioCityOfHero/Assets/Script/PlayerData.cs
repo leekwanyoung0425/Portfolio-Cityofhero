@@ -6,7 +6,7 @@ using TMPro;
 
 public class PlayerData : MonoBehaviour
 {
-    string playerName = "히어로";
+    public string playerName = "히어로";
     int level = 0;
     float curExperience = 0.0f;
     float curExperiencePercent = 0.0f;
@@ -25,8 +25,11 @@ public class PlayerData : MonoBehaviour
     TMP_Text damageTexObj;
     public TMP_Text damageTextPrefab;
     public GameObject damageTextParent;
-
+    public Slider mainHpbar;
     private static PlayerData instance;
+    public TMP_Text levetText;
+    public TMP_Text experienceText;
+    public Slider experienceBar;
 
     public static PlayerData GetInstance()
     {
@@ -53,7 +56,12 @@ public class PlayerData : MonoBehaviour
         hpBar.transform.SetParent(uiParent);
         hpBar.maxValue = maxHp;
         hpBar.value = maxHp;
+        mainHpbar.maxValue = maxHp;
+        mainHpbar.value = maxHp;
         text.text = playerName;
+        experienceText.text = curExperiencePercent.ToString() + "%";
+        experienceBar.maxValue = 100.0f;
+        experienceBar.value = curExperiencePercent;
     }
 
     // Update is called once per frame
@@ -91,6 +99,7 @@ public class PlayerData : MonoBehaviour
         {
             curHp = 0.0f;
             hpBar.value = 0.0f;
+            mainHpbar.value = 0.0f;
             Destroy(text.gameObject);
             Destroy(hpBar.gameObject);
             GetComponent<PlayerControl>().ChangeState(PlayerControl.STATE.DEAD);
@@ -99,6 +108,7 @@ public class PlayerData : MonoBehaviour
         {
             curHp -= damage;
             hpBar.value -= damage;
+            mainHpbar.value -= damage;
             StartCoroutine(InstantiateDamageText(damage, uiPos));
         }
     }
@@ -136,9 +146,14 @@ public class PlayerData : MonoBehaviour
 
     public void LevelUp(float tempExperiencePercent, float tempExperience)
     {
+        ExperienceData.GetInstance().isLevelUP = true;
         level = ExperienceData.GetInstance().CheckLevel(tempExperience);
+        levetText.text = level.ToString();
         curExperience = tempExperience;
-        curExperiencePercent = MaxExperiencePercent - tempExperiencePercent;
+        targetExperience = ExperienceData.GetInstance().CheckTargetExperience(level);
+        curExperiencePercent = (curExperience / targetExperience) * 100.0f;
+        experienceBar.value = curExperiencePercent;
+        experienceText.text = curExperiencePercent.ToString() + "%";
         ++PlayerSkillData.GetInstance().skillPoint;
     }
 
@@ -148,13 +163,15 @@ public class PlayerData : MonoBehaviour
 
         if (curExperiencePercent + getExperiencePercent >= MaxExperiencePercent)
         {
-            float tempExperiencePercent = curExperiencePercent +getExperiencePercent;
+            float tempExperiencePercent = curExperiencePercent + getExperiencePercent;
             float tempExperience = curExperience + getExperience;
             LevelUp(tempExperiencePercent, tempExperience);
         }
         else
         {
             curExperiencePercent += getExperiencePercent;
+            experienceBar.value = curExperiencePercent;
+            experienceText.text = curExperiencePercent.ToString() + "%";
             curExperience += getExperience;
         }
     }

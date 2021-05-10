@@ -15,6 +15,7 @@ public class MonsterState : MonoBehaviour
 
     public STATE mystate = STATE.CREATE;
 
+    public Transform myModel;
     public MonsterData mydata;
     public GameObject hpbarPrefab;
     public GameObject hpbarObj;
@@ -41,16 +42,16 @@ public class MonsterState : MonoBehaviour
     public NavMeshAgent myAgent;
     Coroutine Destination = null;
     Coroutine Search = null;
-
+    Coroutine rotateMonster = null;
     public bool isAttacked = false;
     bool turnback = false;
 
 
     float attackDist = 1.5f;
-    float moveSpeed = 0.0f;
+
 
     public Transform curAttackTarget = null;
-
+    float moveSpeed = 0.0f;
     float curSpeed = 0.0f;
     float maxSpeed = 1.0f;
 
@@ -61,7 +62,10 @@ public class MonsterState : MonoBehaviour
     public bool isDead = false;
     public bool isAttacking = false;
     public bool againTrace = false;
-    
+
+    GameObject chatbubbleObj = null;
+    public GameObject chatBubble;
+    public Transform textUI;
     // Start is called before the first frame update
     void Start()
     {
@@ -73,7 +77,15 @@ public class MonsterState : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StateProcess();       
+        StateProcess();
+
+        if (chatbubbleObj != null)
+        {
+            Vector3 textpos = Camera.main.WorldToScreenPoint(damageTextPos.position);
+            textpos.x -= halfsize.x;
+            textpos.y -= halfsize.y;
+            chatbubbleObj.transform.localPosition = textpos;
+        }
     }
 
     public void StateChange(STATE s)
@@ -140,7 +152,7 @@ public class MonsterState : MonoBehaviour
     {
         if(!isDead && !turnback)
         { 
-            mydata.GetCurHp -= damage;           
+            mydata.CurHp -= damage;           
             curAttackTarget = target;
             if(!isAttacked && !turnback)
             {
@@ -157,8 +169,9 @@ public class MonsterState : MonoBehaviour
 
     public void HPCheck()
     {
-        if (mydata.GetCurHp <= Mathf.Epsilon)
+        if (mydata.CurHp <= Mathf.Epsilon)
         {
+            myAgent.speed = 0.0f;
             StateChange(STATE.DIE);
         }
     }
@@ -225,9 +238,10 @@ public class MonsterState : MonoBehaviour
 
     IEnumerator PlayerSearch()
     {
+        
         float dist;
         float radius = enemySearchDist * 0.5f;
-        while (mystate == STATE.IDLE)
+        while (findTarget== null)
         {
             Collider[] colls = Physics.OverlapSphere(this.transform.parent.position, radius, targetMask);
 
@@ -241,12 +255,58 @@ public class MonsterState : MonoBehaviour
                     findTarget = player.gameObject.transform;
                 }
             }
-            if(findTarget != null && !findTarget.GetComponent<PlayerControl>().IsDead)
-            {
-                StateChange(STATE.SEARCHTRACE);                
-            }
             yield return null;
         }
+
+        if (findTarget != null && !findTarget.GetComponent<PlayerControl>().IsDead)
+        {
+            if (rotateMonster != null) StopCoroutine(rotateMonster);
+            rotateMonster = StartCoroutine(rotate());
+        }
+    }
+
+    IEnumerator rotate()
+    {
+        float rotDirection = 1.0f;
+        float delta = 0.0f;
+        float rotSpeed = 90.0f;
+        Vector3 direction = findTarget.position - myModel.position;
+        direction.Normalize();
+        float rot = Vector3.Dot(direction, myModel.forward);
+        rot = Mathf.Acos(rot);
+        rot = (rot * 180.0f) / Mathf.PI;
+
+        if (Vector3.Dot(myModel.right, direction) < 0.0f)
+        {
+            rotDirection = -1.0f;
+        }
+        while (rot > Mathf.Epsilon && findTarget.gameObject != null)
+        {
+            delta = rotSpeed * Time.smoothDeltaTime;
+
+            if (rot - delta <= Mathf.Epsilon)
+            {
+
+                delta = rot;
+
+            }
+            rot -= delta;
+            myModel.Rotate(myModel.transform.up * delta * rotDirection);
+            yield return null;
+        }
+
+        if (chatbubbleObj != null) Destroy(chatbubbleObj);
+        chatbubbleObj = Instantiate(chatBubble);
+        chatbubbleObj.transform.SetParent(textUI);
+        Vector3 textpos = Camera.main.WorldToScreenPoint(damageTextPos.position);
+        textpos.x -= halfsize.x;
+        textpos.y -= halfsize.y;
+        chatbubbleObj.transform.localPosition = textpos;
+        string str = "쫄쫄이 입은 변태놈이다!";
+        chatbubbleObj.GetComponent<ChatBubble>().chatBuuble(str);
+        myAnim.SetTrigger("Surprised");
+        Destroy(chatbubbleObj, 4.0f);
+
     }
 
     void SearchTracing(Transform target)
@@ -305,7 +365,7 @@ public class MonsterState : MonoBehaviour
         curAttackTarget = null;
         findTarget = null;
         isAttacked = false;
-        Vector3 turnbackPosition = mydata.GetPos;
+        Vector3 turnbackPosition = mydata.respawnPos;
         myAgent.stoppingDistance = 0.0f;
         myAgent.SetDestination(turnbackPosition);
     }
@@ -331,22 +391,22 @@ public class MonsterState : MonoBehaviour
 
         if (mystate == STATE.turnback)
         {
-            if (mydata.GetCurHp < mydata.GetMaxHp)
+            if (mydata.CurHp < mydata.MaxHp)
             {
                 float delta = 10.0f * Time.deltaTime;
-                if (mydata.GetCurHp + delta >= mydata.GetMaxHp)
+                if (mydata.CurHp + delta >= mydata.MaxHp)
                 {
-                    mydata.GetCurHp = mydata.GetMaxHp;
+                    mydata.CurHp = mydata.MaxHp;
                 }
                 else
                 {
-                    mydata.GetCurHp += delta;
+                    mydata.CurHp += delta;
                 }
             }
         }
         else
         {
-            mydata.GetCurHp = mydata.GetMaxHp;
+            mydata.CurHp = mydata.MaxHp;
         }
     }
 
@@ -422,10 +482,16 @@ public class MonsterState : MonoBehaviour
 
     public void MonsterDead()
     {
-        ItemManager.GetInstance().GetItem(mydata.DropItems);
+        ItemManager.GetInstance().GetItem(mydata.GetDropItems);
+        ExperienceData.GetInstance().GetExperience(mydata.Experience);
         myAnim.SetTrigger("Die");
         isDead = true;
         this.transform.parent.gameObject.layer = 10;
         Destroy(this.transform.parent.gameObject, 5.0f);
+    }
+
+    public void changeStateSEARCHTRACE()
+    {
+        StateChange(STATE.SEARCHTRACE);
     }
 }
