@@ -71,10 +71,21 @@ public class CharacterMovement : MonoBehaviour
         animator.SetFloat("Horizontal", horizontal);
         animator.SetFloat("Vertical", vertical);
 
-        Vector3 moveHorizontalDir = new Vector3(horizontal, 0, 0);
-        Vector3 moveVerticallDir = new Vector3(0, 0, vertical);
+        Vector3 dir = (this.transform.right * horizontal) + (this.transform.forward * vertical);
+        dir.Normalize();
 
-        this.transform.Translate(moveHorizontalDir * MaxSpeed * Time.deltaTime);
-        this.transform.Translate(moveVerticallDir * MaxSpeed * Time.deltaTime);
+        this.transform.Translate(dir * MaxSpeed * Time.deltaTime);
+
+    }
+
+    public void KeyboardFlyMovePosition(float horizontal, float vertical)
+    {
+        animator.SetFloat("Horizontal", horizontal);
+        animator.SetFloat("Vertical", vertical);
+
+        Vector3 dir = (this.transform.right * horizontal) + (this.transform.forward * vertical);
+        dir.Normalize();
+
+        rigidbody.MovePosition(this.transform.position + (dir * MaxSpeed * Time.deltaTime));
     }
 }

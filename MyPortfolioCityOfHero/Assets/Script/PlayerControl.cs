@@ -8,7 +8,7 @@ public class PlayerControl : CharacterMovement
 {
     public enum STATE
     {
-        IDLE, WALK, ATTACK, DEAD, SELECT, FLY
+        IDLE, WALK, ATTACK, DEAD, SELECT, FLYIDLE, FLYING
     }
 
     public STATE myState = STATE.IDLE;
@@ -34,6 +34,9 @@ public class PlayerControl : CharacterMovement
     public MiniMap icon;
     public bool iscurAnimEnd;
 
+    public Rigidbody myrigid;
+    public Transform bodyTr;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -51,6 +54,28 @@ public class PlayerControl : CharacterMovement
         StateProcess();       
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            if (isGround)
+            {
+                ChangeState(STATE.FLYIDLE);
+                isGround = false;
+            }
+            else
+            {
+                ChangeState(STATE.IDLE);
+                myrigid.useGravity = true;
+                isGround = true;
+            }
+        }
+
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            transform.position = ray.origin;
+        }
 
     }
 
@@ -71,7 +96,12 @@ public class PlayerControl : CharacterMovement
                 IsDead = true;
                 myAnim.SetTrigger("Dead");
                 break;
-            case STATE.FLY:
+            case STATE.FLYIDLE:
+                myAnim.SetTrigger("FlyMode");
+                myrigid.useGravity = false;
+                myrigid.MovePosition(transform.position + (Vector3.up * 0.3f));
+                break;
+            case STATE.FLYING:
                 break;
         }
     }
@@ -98,7 +128,17 @@ public class PlayerControl : CharacterMovement
                 break;
             case STATE.DEAD:
                 break;
-            case STATE.FLY:
+            case STATE.FLYIDLE:
+                float delta = 0.1f;
+                float speed = 2.0f;
+                Vector3 v = bodyTr.localPosition;
+                v.y = delta * Mathf.Sin(Time.time * speed);
+                bodyTr.localPosition = v;
+                FlyCheck();
+                break;
+            case STATE.FLYING:
+                base.KeyboardFlyMovePosition(horizontal, vertical);
+                FlyIdleCheck();
                 break;
         }
     }
@@ -117,6 +157,22 @@ public class PlayerControl : CharacterMovement
         if (horizontal != 0.0f || vertical != 0.0f)
         {
             ChangeState(STATE.WALK);
+        }
+    }
+
+    void FlyCheck()
+    {
+        if (horizontal != 0.0f || vertical != 0.0f)
+        {
+            ChangeState(STATE.FLYING);
+        }
+    }
+
+    void FlyIdleCheck()
+    {
+        if (horizontal == 0.0f && vertical == 0.0f)
+        {
+            ChangeState(STATE.FLYIDLE);
         }
     }
 

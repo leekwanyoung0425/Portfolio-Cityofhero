@@ -25,7 +25,9 @@ public class MiniMap : MonoBehaviour
             campos.x = camTr.transform.localPosition.x+pos.x;
             campos.z = camTr.transform.localPosition.z+ pos.y;
             this.transform.localPosition = pos;
-            camTr.transform.localPosition = campos;
+            Vector3 temp = target.position;
+            temp.y = 10f;
+            camTr.transform.position = temp;//campos;
             yield return null;
         }
 
