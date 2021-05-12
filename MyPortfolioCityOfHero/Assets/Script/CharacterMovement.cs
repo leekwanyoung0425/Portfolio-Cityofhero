@@ -35,7 +35,7 @@ public class CharacterMovement : MonoBehaviour
     }
 
 
-    public float MaxSpeed = 0.2f;
+    public float MaxSpeed = 5f;
     public float rotSpeed = 360.0f;
     public float JumpPower = 0.5f;
 
@@ -76,7 +76,6 @@ public class CharacterMovement : MonoBehaviour
 
 
         rigidbody.MovePosition(this.transform.position + (dir * MaxSpeed * Time.deltaTime));
-        //this.transform.Translate(dir * MaxSpeed * Time.deltaTime);
 
     }
 

@@ -39,6 +39,9 @@ public class PlayerControl : CharacterMovement
 
     public Camera cam;
 
+    float time;
+    float temp;
+    Plane plane;
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +50,7 @@ public class PlayerControl : CharacterMovement
         canvas = FindObjectOfType<Canvas>();
         halfsize.x = canvas.pixelRect.width / 2.0f;
         halfsize.y = canvas.pixelRect.height / 2.0f;
-        icon.Setposition(this.transform);
+        icon.Setposition(this.transform);        
     }
 
     // Update is called once per frame
@@ -59,8 +62,24 @@ public class PlayerControl : CharacterMovement
 
         if(Input.GetKeyDown(KeyCode.L))
         {
-            myrigid.AddForce(Vector3.up * 3000f);
+            myAnim.SetTrigger("JumpMode");
+            myrigid.AddForce(Vector3.up * 2500f);
         }
+
+        //if(Input.GetMouseButtonDown(0))
+        //{
+        //    Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        //    float enter;
+        //    Vector3 meetPoint;
+        //    plane = new Plane(-cam.transform.forward, cam.transform.position + cam.transform.forward * 30f);
+        //    if (plane.Raycast(ray, out enter))
+        //    {
+        //        meetPoint = ray.GetPoint(enter);
+        //        Vector3 pos = meetPoint - transform.position;
+        //        pos.Normalize();
+        //        rigidbody.MovePosition(transform.position + (pos*30f));
+        //    }
+        //}
     }
 
     public void ChangeState(STATE s)
@@ -81,9 +100,11 @@ public class PlayerControl : CharacterMovement
                 myAnim.SetTrigger("Dead");
                 break;
             case STATE.FLYIDLE:
+                time = temp;
                 myrigid.useGravity = false;
                 break;
             case STATE.FLYING:
+                temp = time;
                 break;
             case STATE.FALLING:
                 break;
@@ -132,7 +153,8 @@ public class PlayerControl : CharacterMovement
         float delta = 0.1f;
         float speed = 2.0f;
         Vector3 v = bodyTr.localPosition;
-        v.y = delta * Mathf.Sin(Time.time * speed);
+        time += Time.deltaTime;
+        v.y = delta * Mathf.Sin(time * speed);
         bodyTr.localPosition = v;
     }
 
