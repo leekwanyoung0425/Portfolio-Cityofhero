@@ -29,6 +29,7 @@ public class SkillBomb : SkillDataBase
         damage = 15.0f;
         isNonTargetSkill = true;
         skillStep = 3;
+        isMoveSkill = false;
     }
 
     private void Update()
@@ -103,5 +104,8 @@ public class SkillBomb : SkillDataBase
         isCoolDown = false;
     }
 
+    public override void SkillOnOff()
+    {
+    }
 
 }

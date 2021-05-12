@@ -37,6 +37,7 @@ public class SlotData : MonoBehaviour
     {
         playerAttack.skillInit += () => slots[num].GetComponentInChildren<SkillDataBase>().CoolDown();
         playerAttack.skillInit += () => slots[num].GetComponentInChildren<SkillDataBase>().SkillAnim();
+        playerAttack.skillInit += () => slots[num].GetComponentInChildren<SkillDataBase>().SkillOnOff();
         slots[num].GetComponentInChildren<SkillDataBase>().caster = caster;
         slots[num].GetComponentInChildren<SkillDataBase>().target = target;
     }

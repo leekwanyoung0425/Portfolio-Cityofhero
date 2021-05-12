@@ -12,7 +12,6 @@ public class Ipointer : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler 
     GameObject icon = null;
     public GameObject curParentObj = null;
     public bool isDrag = false;
-    public GameObject map;
 
     // Start is called before the first frame update 
     void Start()
@@ -102,7 +101,7 @@ public class Ipointer : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler 
             {
                 if (icon.transform.parent.GetComponent<Slot>() == null)
                 {
-                    Destroy(icon);
+                    //Destroy(icon);
                 }
                 else
                 {

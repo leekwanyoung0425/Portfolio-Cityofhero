@@ -34,6 +34,7 @@ public class SkillMagicFire : SkillDataBase
         damage = 30.0f;
         dist = 15.0f;
         skillStep = 2;
+        isMoveSkill = false;
     }
 
     private void Update()
@@ -177,5 +178,9 @@ public class SkillMagicFire : SkillDataBase
 
             yield return null;
         }
+    }
+
+    public override void SkillOnOff()
+    {
     }
 }

@@ -292,3 +292,7 @@ E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Release\Assemb
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Release\Assembly-CSharp.csproj.CopyComplete
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Release\Assembly-CSharp.dll
 E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\obj\Release\Assembly-CSharp.pdb
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Release\Unity.VisualEffectGraph.Editor.dll
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Release\Unity.VisualEffectGraph.Runtime.dll
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Release\Unity.VisualEffectGraph.Runtime.pdb
+E:\UNITY\Documents\Portfolio-Cityofhero\MyPortfolioCityOfHero\Temp\bin\Release\Unity.VisualEffectGraph.Editor.pdb

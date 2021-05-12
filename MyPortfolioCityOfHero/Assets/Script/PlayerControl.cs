@@ -8,7 +8,7 @@ public class PlayerControl : CharacterMovement
 {
     public enum STATE
     {
-        IDLE, WALK, ATTACK, DEAD, SELECT, FLYIDLE, FLYING
+        IDLE, WALK, ATTACK, DEAD, SELECT, FLYIDLE, FLYING, FALLING
     }
 
     public STATE myState = STATE.IDLE;
@@ -17,7 +17,7 @@ public class PlayerControl : CharacterMovement
     CapsuleCollider _collider;
     float horizontal = 0.0f;
     float vertical = 0.0f;
-    private bool isGround = true;
+    public bool isGround = true;
 
     public TargetSelect targetSelect;
 
@@ -25,7 +25,7 @@ public class PlayerControl : CharacterMovement
     public bool isPossibleAttackDist = false;
     public bool isCoolDown = false;
 
-   public Transform headTr;
+    public Transform headTr;
     public TMPro.TMP_Text textPrefab;
     Canvas canvas;
     Vector2 halfsize = Vector2.zero;
@@ -36,6 +36,8 @@ public class PlayerControl : CharacterMovement
 
     public Rigidbody myrigid;
     public Transform bodyTr;
+
+    public Camera cam;
 
     // Start is called before the first frame update
     void Start()
@@ -51,32 +53,14 @@ public class PlayerControl : CharacterMovement
     // Update is called once per frame
     void Update()
     {
-        StateProcess();       
+        StateProcess();
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
         if(Input.GetKeyDown(KeyCode.L))
         {
-            if (isGround)
-            {
-                ChangeState(STATE.FLYIDLE);
-                isGround = false;
-            }
-            else
-            {
-                ChangeState(STATE.IDLE);
-                myrigid.useGravity = true;
-                isGround = true;
-            }
+            myrigid.AddForce(Vector3.up * 3000f);
         }
-
-        if (Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            transform.position = ray.origin;
-        }
-
     }
 
     public void ChangeState(STATE s)
@@ -86,7 +70,7 @@ public class PlayerControl : CharacterMovement
 
         switch (myState)
         {
-            case STATE.IDLE:                
+            case STATE.IDLE:
                 break;
             case STATE.WALK:
                 break;
@@ -97,11 +81,11 @@ public class PlayerControl : CharacterMovement
                 myAnim.SetTrigger("Dead");
                 break;
             case STATE.FLYIDLE:
-                myAnim.SetTrigger("FlyMode");
                 myrigid.useGravity = false;
-                myrigid.MovePosition(transform.position + (Vector3.up * 0.3f));
                 break;
             case STATE.FLYING:
+                break;
+            case STATE.FALLING:
                 break;
         }
     }
@@ -129,20 +113,28 @@ public class PlayerControl : CharacterMovement
             case STATE.DEAD:
                 break;
             case STATE.FLYIDLE:
-                float delta = 0.1f;
-                float speed = 2.0f;
-                Vector3 v = bodyTr.localPosition;
-                v.y = delta * Mathf.Sin(Time.time * speed);
-                bodyTr.localPosition = v;
+                InputNumber();
+                FlyIdlePos();
                 FlyCheck();
                 break;
-            case STATE.FLYING:
+            case STATE.FLYING:                
                 base.KeyboardFlyMovePosition(horizontal, vertical);
                 FlyIdleCheck();
+                break;
+            case STATE.FALLING:
+                IsGroundCheck();
                 break;
         }
     }
 
+    void FlyIdlePos()
+    {
+        float delta = 0.1f;
+        float speed = 2.0f;
+        Vector3 v = bodyTr.localPosition;
+        v.y = delta * Mathf.Sin(Time.time * speed);
+        bodyTr.localPosition = v;
+    }
 
     void IdleCheck()
     {
@@ -200,50 +192,62 @@ public class PlayerControl : CharacterMovement
 
             isPossibleAttackDist = skilldata.dist >= dist ? true : false;
 
-            if (skilldata.isNonTargetSkill)
+            if (skilldata.isMoveSkill)
             {
-                if (!isCoolDown && iscurAnimEnd)
-                {
-                    ChangeState(STATE.ATTACK);
-                    curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
-                    SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
-                    playerAttack.SkillInit();
-                }
-                else
-                {
-                    StartCoroutine(AttackAlertText());
-                }
+                curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
+                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                playerAttack.SkillInit();
             }
             else
             {
-                if (skilldata != null && !isCoolDown && targetSelect.GetselectTarget != null && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isPossibleAttackDist && iscurAnimEnd)
+                if (skilldata.isNonTargetSkill)
                 {
-                    ChangeState(STATE.ATTACK);
-                    curCastingSkill = skilldata;
-                    SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
-                    if (curCastingSkill.isRotateSkill)
+                    if (!isCoolDown && iscurAnimEnd)
                     {
-                        playerAttack.AttackReady();
+                        ChangeState(STATE.ATTACK);
+                        curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
+                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                        playerAttack.SkillInit();
                     }
                     else
                     {
-                        playerAttack.SkillInit();
+                        StartCoroutine(AttackAlertText());
                     }
                 }
                 else
                 {
-                    StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget, isPossibleAttackDist));
+                    if (skilldata != null && !isCoolDown && targetSelect.GetselectTarget != null && targetSelect.GetselectTarget.gameObject.layer == LayerMask.NameToLayer("Monster") && isPossibleAttackDist && iscurAnimEnd)
+                    {
+                        ChangeState(STATE.ATTACK);
+                        curCastingSkill = skilldata;
+                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                        if (curCastingSkill.isRotateSkill)
+                        {
+                            playerAttack.AttackReady();
+                        }
+                        else
+                        {
+                            playerAttack.SkillInit();
+                        }
+                    }
+                    else
+                    {
+                        StartCoroutine(AttackAlertText(skilldata, isCoolDown, targetSelect.GetselectTarget, isPossibleAttackDist));
+                    }
                 }
             }
-        }                   
+        }
     }
 
     void OnCollisionEnter(Collision other)
     {
-        isGround = true;
+        if (other.gameObject.layer == 8)
+        {
+            isGround = true;
+        }
     }
 
-  
+
 
     IEnumerator AttackAlertText(SkillDataBase slotdata, bool isCoolDown, Transform target, bool isPossibleAttackDist)
     {
@@ -253,7 +257,7 @@ public class PlayerControl : CharacterMovement
         TMPro.TMP_Text attackAlertText = Instantiate(textPrefab);
         attackAlertText.transform.SetParent(canvas.transform);
         attackAlertText.transform.localPosition = textpos;
-        attackAlertText.outlineColor = new Color(255,80,0);
+        attackAlertText.outlineColor = new Color(255, 80, 0);
         float textUpSpeed = 5.0f;
         bool stop = false;
 
@@ -265,15 +269,15 @@ public class PlayerControl : CharacterMovement
         {
             attackAlertText.text = "재사용 대기중입니다.";
         }
-        else if(target ==null)
+        else if (target == null)
         {
             attackAlertText.text = "공격할 대상이 없습니다.";
         }
-        else if(target.gameObject.layer != LayerMask.NameToLayer("Monster"))
+        else if (target.gameObject.layer != LayerMask.NameToLayer("Monster"))
         {
             attackAlertText.text = "공격 대상이 아닙니다.";
         }
-        else if(!isPossibleAttackDist)
+        else if (!isPossibleAttackDist)
         {
             attackAlertText.text = "적이 너무 멀리있습니다.";
         }
@@ -334,16 +338,24 @@ public class PlayerControl : CharacterMovement
             num = 0;
         else if (Input.GetKeyDown(KeyCode.Alpha2))
             num = 1;
-        else if(Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
             num = 2;
-        else if(Input.GetKeyDown(KeyCode.Alpha4))
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
             num = 3;
-        else if(Input.GetKeyDown(KeyCode.Alpha5))
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
             num = 4;
 
         if (num > -1)
         {
             AttackCheck(num);
+        }
+    }
+
+    public void IsGroundCheck()
+    {
+        if(isGround)
+        {
+            ChangeState(STATE.IDLE);
         }
     }
 }

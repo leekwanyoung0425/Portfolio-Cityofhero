@@ -11,9 +11,9 @@ public class PlayerSkillData : MonoBehaviour
     public TMP_Text skillPointText;
     public GameObject alert;
     public TMP_Text alertText;
-    public SkillDataBase test;
     public SkillListUI skillListUI;
-
+    public SkillNormalPunch normalPunch;
+    public SKillSuperFly superFly;
 
     private static PlayerSkillData instance;
 
@@ -32,7 +32,8 @@ public class PlayerSkillData : MonoBehaviour
         playerSkillData = new Dictionary<string, SkillDataBase>();
         skillPoint = 1;
         skillPointText.text = skillPoint.ToString();
-        playerSkillData.Add("Skill_NormalPunch", test);
+        playerSkillData.Add("Skill_NormalPunch", normalPunch);
+        playerSkillData.Add("Skill_SuperFly", superFly);
     }
 
     // Update is called once per frame

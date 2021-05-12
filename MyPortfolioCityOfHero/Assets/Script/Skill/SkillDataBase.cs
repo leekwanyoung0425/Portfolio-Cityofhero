@@ -18,6 +18,8 @@ public abstract class SkillDataBase : MonoBehaviour
     public float dist = 0.0f;
     public bool isNonTargetSkill = false;
     public int skillStep = 0;
+    public bool isMoveSkill = false;
     public abstract void SkillAnim();
     public abstract void CoolDown();
+    public abstract void SkillOnOff();
 }

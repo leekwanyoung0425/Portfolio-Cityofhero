@@ -23,6 +23,7 @@ public class SkillNormalPunch : SkillDataBase
         damage = 10.0f;
         dist = 1.5f;
         skillStep = 1;
+        isMoveSkill = false;
     }
 
     private void Update()
@@ -76,5 +77,9 @@ public class SkillNormalPunch : SkillDataBase
         col.a = 1.0f;
         iconImage.color = col;
         isCoolDown = false;
+    }
+
+    public override void SkillOnOff()
+    {
     }
 }

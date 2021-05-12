@@ -28,6 +28,7 @@ public class SkillKick : SkillDataBase
         damage = 20.0f;
         dist = 1.5f;
         skillStep = 2;
+        isMoveSkill = false;
     }
 
     private void Update()
@@ -81,6 +82,10 @@ public class SkillKick : SkillDataBase
         col.a = 1.0f;
         iconImage.color = col;
         isCoolDown = false;
+    }
+
+    public override void SkillOnOff()
+    {
     }
 
 }

@@ -74,7 +74,9 @@ public class CharacterMovement : MonoBehaviour
         Vector3 dir = (this.transform.right * horizontal) + (this.transform.forward * vertical);
         dir.Normalize();
 
-        this.transform.Translate(dir * MaxSpeed * Time.deltaTime);
+
+        rigidbody.MovePosition(this.transform.position + (dir * MaxSpeed * Time.deltaTime));
+        //this.transform.Translate(dir * MaxSpeed * Time.deltaTime);
 
     }
 

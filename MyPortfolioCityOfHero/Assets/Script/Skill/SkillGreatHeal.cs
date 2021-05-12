@@ -10,6 +10,7 @@ public class SkillGreatHeal : SkillDataBase
         skillName = "Skill_GreatHeal";
         needPrecedingSkillName = "Skill_Kick";
         skillStep = 3;
+        isMoveSkill = false;
     }
 
     // Update is called once per frame
@@ -20,4 +21,8 @@ public class SkillGreatHeal : SkillDataBase
     public override void SkillAnim() { }
 
     public override void CoolDown() { }
+
+    public override void SkillOnOff()
+    {
+    }
 }
