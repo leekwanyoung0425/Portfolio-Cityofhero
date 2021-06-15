@@ -20,8 +20,8 @@ public class SkillNormalPunch : SkillDataBase
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_stone_emerge");
         coolDownTime = 3.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
-        damage = 10.0f;
-        dist = 1.5f;
+        damage = 20.0f;
+        dist = 2.0f;
         skillStep = 1;
         isMoveSkill = false;
     }

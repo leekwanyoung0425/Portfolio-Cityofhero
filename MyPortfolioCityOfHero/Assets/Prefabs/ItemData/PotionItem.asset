@@ -15,4 +15,4 @@ MonoBehaviour:
   ItemID: 1001
   ItemName: RedPotion
   ItemIcon: {fileID: 21300000, guid: e52ea25af699fd445b7046374f81a5b9, type: 3}
-  Health: 30
+  Health: 1000

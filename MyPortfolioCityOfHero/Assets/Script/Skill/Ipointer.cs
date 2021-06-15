@@ -101,7 +101,7 @@ public class Ipointer : MonoBehaviour,IPointerClickHandler ,IPointerDownHandler 
             {
                 if (icon.transform.parent.GetComponent<Slot>() == null)
                 {
-                    //Destroy(icon);
+                    Destroy(icon);
                 }
                 else
                 {

@@ -240,7 +240,7 @@ public class MonsterState : MonoBehaviour
     {
         
         float dist;
-        float radius = enemySearchDist * 0.5f;
+        float radius = enemySearchDist * 0.2f;
         while (findTarget== null)
         {
             Collider[] colls = Physics.OverlapSphere(this.transform.parent.position, radius, targetMask);
@@ -251,7 +251,6 @@ public class MonsterState : MonoBehaviour
 
                 if(dist <= radius)
                 {
-                    enemySearchDist = dist;
                     findTarget = player.gameObject.transform;
                 }
             }
@@ -295,17 +294,20 @@ public class MonsterState : MonoBehaviour
             yield return null;
         }
 
-        if (chatbubbleObj != null) Destroy(chatbubbleObj);
-        chatbubbleObj = Instantiate(chatBubble);
-        chatbubbleObj.transform.SetParent(textUI);
-        Vector3 textpos = Camera.main.WorldToScreenPoint(damageTextPos.position);
-        textpos.x -= halfsize.x;
-        textpos.y -= halfsize.y;
-        chatbubbleObj.transform.localPosition = textpos;
-        string str = "쫄쫄이 입은 변태놈이다!";
-        chatbubbleObj.GetComponent<ChatBubble>().chatBuuble(str);
-        myAnim.SetTrigger("Surprised");
-        Destroy(chatbubbleObj, 4.0f);
+        if (mystate == STATE.IDLE)
+        {
+            if (chatbubbleObj != null) Destroy(chatbubbleObj);
+            chatbubbleObj = Instantiate(chatBubble);
+            chatbubbleObj.transform.SetParent(textUI);
+            Vector3 textpos = Camera.main.WorldToScreenPoint(damageTextPos.position);
+            textpos.x -= halfsize.x;
+            textpos.y -= halfsize.y;
+            chatbubbleObj.transform.localPosition = textpos;
+            string str = "쫄쫄이 입은 변태놈이다!";
+            chatbubbleObj.GetComponent<ChatBubble>().chatBuuble(str);
+            myAnim.SetTrigger("Surprised");
+            Destroy(chatbubbleObj, 4.0f);
+        }
 
     }
 
@@ -371,8 +373,7 @@ public class MonsterState : MonoBehaviour
     }
 
     void turnbackEnd()
-    {
-      
+    {     
         if (myAgent.remainingDistance <= myAgent.stoppingDistance)
         {
             if (moveSpeed > Mathf.Epsilon)
@@ -385,6 +386,7 @@ public class MonsterState : MonoBehaviour
             {
                 myAgent.stoppingDistance = 1.5f;
                 turnback = false;
+                myModel.rotation = new Quaternion(0f, 180f, 0f,0f);
                 StateChange(STATE.IDLE);
             }
         }

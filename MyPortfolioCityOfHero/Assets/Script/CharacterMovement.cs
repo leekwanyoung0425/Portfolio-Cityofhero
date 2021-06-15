@@ -5,6 +5,7 @@ using UnityEngine;
 public class CharacterMovement : MonoBehaviour
 {
     public AnimationActionPlay _animationActionPlay;
+    public GameObject springArm;
 
     Animator anim = null;
     public Animator animator
@@ -84,8 +85,15 @@ public class CharacterMovement : MonoBehaviour
         animator.SetFloat("Horizontal", horizontal);
         animator.SetFloat("Vertical", vertical);
 
-        Vector3 dir = (this.transform.right * horizontal) + (this.transform.forward * vertical);
+        Vector3 dir = (this.transform.right * horizontal) + (springArm.transform.forward * vertical);
         dir.Normalize();
+
+     
+
+        if (horizontal > 0 || vertical > 0)
+        {
+            this.transform.GetChild(0).localRotation = springArm.transform.localRotation;
+        }
 
         rigidbody.MovePosition(this.transform.position + (dir * MaxSpeed * Time.deltaTime));
     }

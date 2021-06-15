@@ -33,7 +33,7 @@ public class SlotData : MonoBehaviour
 
 
 
-    public void SkillUseReady(int num, GameObject caster, Transform target)
+    public void SkillUseReady(int num, Transform caster, Transform target)
     {
         playerAttack.skillInit += () => slots[num].GetComponentInChildren<SkillDataBase>().CoolDown();
         playerAttack.skillInit += () => slots[num].GetComponentInChildren<SkillDataBase>().SkillAnim();

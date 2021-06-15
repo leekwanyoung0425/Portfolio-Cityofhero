@@ -9,11 +9,12 @@ public class SKillSuperFly : SkillDataBase
     public PlayerControl playerControl;
     public Animator myAnim;
     RectTransform size;
+    public GameObject skillUseEffect;
     public GameObject coolDownEffect;
 
     private void Awake()
     {
-        skillNumber = 6;
+        skillNumber = 8;
         skillName = "Skill_SuperFly";
         iconImage = GetComponent<Image>();
         iconImage.sprite = Resources.Load<Sprite>("Icon/S_Forward_freeze");
@@ -40,12 +41,14 @@ public class SKillSuperFly : SkillDataBase
     {
         if (playerControl.isGround)
         {
+            skillUseEffect.SetActive(true);
             playerControl.ChangeState(PlayerControl.STATE.FLYIDLE);
             playerControl.isGround = false;
             playerControl.myrigid.MovePosition(playerControl.transform.position + (Vector3.up * 0.3f));
         }
         else
         {
+            skillUseEffect.SetActive(false);
             playerControl.ChangeState(PlayerControl.STATE.FALLING);
             playerControl.myrigid.useGravity = true;
         }

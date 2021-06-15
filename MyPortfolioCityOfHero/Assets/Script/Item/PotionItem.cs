@@ -10,7 +10,6 @@ public class PotionItem : Item
 
     public float Health = 0;
 
-
     public override void Use()
     {
         float maxHp = PlayerData.GetInstance().maxHp;
@@ -19,11 +18,13 @@ public class PotionItem : Item
         {
             PlayerData.GetInstance().curHp = maxHp;
             PlayerData.GetInstance().hpBar.value = maxHp;
+            PlayerData.GetInstance().mainHpbar.value = maxHp;
         }
         else
         {
             PlayerData.GetInstance().curHp += Health;
             PlayerData.GetInstance().hpBar.value += Health;
+            PlayerData.GetInstance().mainHpbar.value += Health;
         }
 
         Remove();

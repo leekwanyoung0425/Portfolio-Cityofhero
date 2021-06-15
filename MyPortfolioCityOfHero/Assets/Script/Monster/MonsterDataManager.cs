@@ -9,6 +9,6 @@ public class MonsterDataManager : ScriptableObject
     public string MonsterName = "";
     public float HP = 0.0f;
     public float AttackPower = 0.0f;
-    public Vector3 BaseRespawnPos = Vector3.zero;
+    public Vector3 BaseRespawnPos = new Vector3(18.55f, 0, -4.511f);
     public float Experience = 0.0f;
 }

@@ -31,7 +31,7 @@ public class SkillMagicFire : SkillDataBase
         //iconImage.sprite = Resources.Load<Sprite>("Icon/S_Blue_firework");
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
-        damage = 30.0f;
+        damage = 50.0f;
         dist = 15.0f;
         skillStep = 2;
         isMoveSkill = false;

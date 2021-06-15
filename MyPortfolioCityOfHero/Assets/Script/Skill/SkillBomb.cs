@@ -26,7 +26,7 @@ public class SkillBomb : SkillDataBase
         //iconImage.sprite = Resources.Load<Sprite>("Icon/S_Green_invade");
         coolDownTime = 5.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
-        damage = 15.0f;
+        damage = 60.0f;
         isNonTargetSkill = true;
         skillStep = 3;
         isMoveSkill = false;

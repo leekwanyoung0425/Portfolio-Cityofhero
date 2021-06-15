@@ -26,7 +26,7 @@ public class SkillKick : SkillDataBase
         coolDownTime = 4.0f;
         size = this.transform.parent.GetComponent<RectTransform>();
         damage = 20.0f;
-        dist = 1.5f;
+        dist = 2.0f;
         skillStep = 2;
         isMoveSkill = false;
     }

@@ -8,7 +8,7 @@ public class PlayerControl : CharacterMovement
 {
     public enum STATE
     {
-        IDLE, WALK, ATTACK, DEAD, SELECT, FLYIDLE, FLYING, FALLING
+        IDLE, WALK, ATTACK, DEAD, SELECT, FLYIDLE, FLYING, FALLING, RUN, JUMP
     }
 
     public STATE myState = STATE.IDLE;
@@ -42,6 +42,14 @@ public class PlayerControl : CharacterMovement
     float time;
     float temp;
     Plane plane;
+
+    public bool isSuperJumpOnOff = false;
+    public bool isSuperSpeedOnOff = false;
+    public bool isTeleportOnOff = false;
+
+    public GameObject teleportEffect;
+    public LayerMask buildingLayer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,27 +67,6 @@ public class PlayerControl : CharacterMovement
         StateProcess();
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
-
-        if(Input.GetKeyDown(KeyCode.L))
-        {
-            myAnim.SetTrigger("JumpMode");
-            myrigid.AddForce(Vector3.up * 2500f);
-        }
-
-        //if(Input.GetMouseButtonDown(0))
-        //{
-        //    Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        //    float enter;
-        //    Vector3 meetPoint;
-        //    plane = new Plane(-cam.transform.forward, cam.transform.position + cam.transform.forward * 30f);
-        //    if (plane.Raycast(ray, out enter))
-        //    {
-        //        meetPoint = ray.GetPoint(enter);
-        //        Vector3 pos = meetPoint - transform.position;
-        //        pos.Normalize();
-        //        rigidbody.MovePosition(transform.position + (pos*30f));
-        //    }
-        //}
     }
 
     public void ChangeState(STATE s)
@@ -90,8 +77,10 @@ public class PlayerControl : CharacterMovement
         switch (myState)
         {
             case STATE.IDLE:
+                MaxSpeed = 5.0f;
                 break;
             case STATE.WALK:
+                MaxSpeed = 5.0f;
                 break;
             case STATE.ATTACK:
                 break;
@@ -100,13 +89,21 @@ public class PlayerControl : CharacterMovement
                 myAnim.SetTrigger("Dead");
                 break;
             case STATE.FLYIDLE:
+                this.transform.GetChild(0).localRotation = Quaternion.identity;
                 time = temp;
                 myrigid.useGravity = false;
                 break;
             case STATE.FLYING:
+                MaxSpeed = 40.0f;
                 temp = time;
                 break;
             case STATE.FALLING:
+                break;
+            case STATE.RUN:
+                MaxSpeed = 50.0f;
+                break;
+            case STATE.JUMP:
+                MaxSpeed = 10.0f;
                 break;
         }
     }
@@ -121,10 +118,11 @@ public class PlayerControl : CharacterMovement
                     WalkCheck();
                     InputNumber();
                     JumpCheck();
+                    TelePortCheck();
                 }
                 break;
             case STATE.WALK:
-                base.KeyboardMovePosition(horizontal, vertical);
+                base.KeyboardMovePosition(horizontal * 0.5f, vertical * 0.5f);
                 IdleCheck();
                 JumpCheck();
                 break;
@@ -137,12 +135,23 @@ public class PlayerControl : CharacterMovement
                 InputNumber();
                 FlyIdlePos();
                 FlyCheck();
+                TelePortCheck();
                 break;
             case STATE.FLYING:                
                 base.KeyboardFlyMovePosition(horizontal, vertical);
                 FlyIdleCheck();
                 break;
             case STATE.FALLING:
+                IsGroundCheck();
+                break;
+            case STATE.RUN:
+                InputNumber();
+                JumpCheck();
+                TelePortCheck();
+                base.KeyboardMovePosition(horizontal, vertical);
+                break;
+            case STATE.JUMP:
+                base.KeyboardMovePosition(horizontal * 0.5f, vertical * 0.5f);
                 IsGroundCheck();
                 break;
         }
@@ -196,11 +205,76 @@ public class PlayerControl : CharacterMovement
         {
             if (isGround)
             {
-                isGround = false;
-                base.JumpAnimationPlay();
+                if (!isSuperJumpOnOff)
+                {
+                    isGround = false;
+                    base.JumpAnimationPlay();
+                }
+                else
+                {
+                    isGround = false;
+                    ChangeState(STATE.JUMP);
+                    curCastingSkill.GetComponent<SKillSuperJump>().SkillAnimSetp1();
+                }
             }
         }
     }
+
+    void TelePortCheck()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 buildingPos;
+            if (isTeleportOnOff)
+            {
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                float enter;
+                Vector3 meetPoint;
+                float dist = 30f;
+                plane = new Plane(-cam.transform.forward, cam.transform.position + cam.transform.forward * dist);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit, dist, buildingLayer))
+                        buildingPos = hit.point;
+                else
+                        buildingPos = Vector3.zero;
+
+                if (plane.Raycast(ray, out enter))
+                {
+                    meetPoint = ray.GetPoint(enter);
+                    if (buildingPos != Vector3.zero)
+                    {
+                        if (Vector3.Distance(buildingPos, transform.position) <= 30f)
+                        {
+                            Vector3 pos = buildingPos - transform.position;
+                            float moveDist = Vector3.Distance(buildingPos, transform.position);
+                            pos.Normalize();
+                            _animationActionPlay.Teleport += () => rigidbody.MovePosition(transform.position + (pos * (moveDist - 1f)));
+                            curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp1();
+                            curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp2();
+                        }
+                        else
+                        {
+                            Vector3 pos = meetPoint - transform.position;
+                            pos.Normalize();
+                            _animationActionPlay.Teleport += () => rigidbody.MovePosition(transform.position + (pos * dist));
+                            curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp1();
+                            curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp2();
+                        }
+                    }
+                    else
+                    {
+                        Vector3 pos = meetPoint - transform.position;
+                        pos.Normalize();
+                        _animationActionPlay.Teleport += () => rigidbody.MovePosition(transform.position + (pos * dist));
+                        curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp1();
+                        curCastingSkill.GetComponent<SKillTeleport>().SkillAnimSetp2();
+                    }
+                }
+            }
+        }
+    }
+
 
     void AttackCheck(int inputSlotNum)
     {
@@ -217,7 +291,7 @@ public class PlayerControl : CharacterMovement
             if (skilldata.isMoveSkill)
             {
                 curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
-                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                SlotData.GetInstance().SkillUseReady(inputSlotNum, this.transform, targetSelect.GetselectTarget);
                 playerAttack.SkillInit();
             }
             else
@@ -228,7 +302,7 @@ public class PlayerControl : CharacterMovement
                     {
                         ChangeState(STATE.ATTACK);
                         curCastingSkill = SlotData.GetInstance().slots[inputSlotNum].GetComponentInChildren<SkillDataBase>();
-                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.transform, targetSelect.GetselectTarget);
                         playerAttack.SkillInit();
                     }
                     else
@@ -242,7 +316,7 @@ public class PlayerControl : CharacterMovement
                     {
                         ChangeState(STATE.ATTACK);
                         curCastingSkill = skilldata;
-                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.gameObject, targetSelect.GetselectTarget);
+                        SlotData.GetInstance().SkillUseReady(inputSlotNum, this.transform, targetSelect.GetselectTarget);
                         if (curCastingSkill.isRotateSkill)
                         {
                             playerAttack.AttackReady();

@@ -12,7 +12,7 @@ public abstract class SkillDataBase : MonoBehaviour
     public float coolDownTime = 0.0f;
     public bool isCoolDown = false;
     public float damage = 0.0f;
-    public GameObject caster = null;
+    public Transform caster = null;
     public Transform target = null;
     public bool isRotateSkill;
     public float dist = 0.0f;
